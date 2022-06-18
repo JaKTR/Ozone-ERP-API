@@ -59,10 +59,11 @@ jobs:
         deactivate
         popd
 
-    - name: 'Deleting the virtual environment'
+    - name: 'Cleaning up'
       shell: bash
       run: |
         rm -rf venv
+        rm -rf .mypy_cache
 
     - name: 'Viewing directory tree for debug'
       shell: bash
