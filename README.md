@@ -1,2 +1,5 @@
 # Umbrella-ERP-API
-Fire and Emergency New Zealand's enterprise resource planning web app's backend
+Umbrella Enterprise Resource Planning web app's backend.
+
+# Base Endpoint
+https://umbrella-backend-development.azurewebsites.net/
