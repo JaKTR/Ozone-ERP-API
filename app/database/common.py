@@ -3,7 +3,7 @@ from typing import Dict, Any, Tuple
 
 import mongoengine
 from mongoengine import Document, StringField, DateTimeField
-from pymongo import MongoClient
+from pymongo import MongoClient # type: ignore[attr-defined]
 
 from app.database import constants
 
@@ -17,16 +17,16 @@ def connect_to_database() -> None:
     pass
 
 
-class DatabaseDocument(Document):
+class DatabaseDocument(Document):   # type: ignore[misc]
     modified_time: datetime = DateTimeField(default=datetime.utcnow)
     modified_user_name: str = StringField()
 
     meta: Dict[str, Any] = {"abstract": True}
 
     def __repr__(self) -> str:
-        return self.to_json()
+        return self.to_json()   # type: ignore[no-any-return]
 
-    def save(self, *args: Tuple, **kwargs: Dict[str, Any]) -> "DatabaseDocument":
+    def save(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> "DatabaseDocument":
         connect_to_database()
         self.modified_time = datetime.utcnow()
-        return super().save()
+        return super().save()   # type: ignore[no-any-return]

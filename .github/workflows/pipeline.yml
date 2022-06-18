@@ -34,30 +34,27 @@ jobs:
     - name: 'Creating the virtual environment for code validation'
       shell: bash
       run: |
-        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         python3 -m venv venv
-        popd
+        source venv/bin/activate
+        pip install -r requirements.txt
+        deactivate
 
     - name: 'Validating the code with Mypy'
       shell: bash
       run: |
-        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         source venv/bin/activate
         pip install mypy
         mypy .
         deactivate
-        popd
 
     - name: 'Running tests'
       shell: bash
       run: |
-        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
         export PYTHONDONTWRITEBYTECODE=1
         source venv/bin/activate
         pip install pytest
         pytest .
         deactivate
-        popd
 
     - name: 'Cleaning up'
       shell: bash
