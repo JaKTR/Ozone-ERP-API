@@ -62,7 +62,7 @@ jobs:
         rm -rf venv
         rm -rf .mypy_cache
 
-    - name: 'Viewing directory tree for debug'
+    - name: 'Viewing directory tree for debug purposes'
       shell: bash
       run: |
         tree .

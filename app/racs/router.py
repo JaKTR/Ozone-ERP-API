@@ -16,7 +16,7 @@ async def root() -> RedirectResponse:
 
 @app.post("/authenticate")
 async def authenticate(authentication: AuthenticationModel) -> Dict[str, Any]:
-    # authentication.save()
+    authentication.save()
     return {"status": "OK"}
 
 if __name__ == "__main__":

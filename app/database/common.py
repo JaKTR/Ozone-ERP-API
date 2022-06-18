@@ -3,7 +3,7 @@ from typing import Dict, Any, Tuple
 
 import mongoengine
 from mongoengine import Document, StringField, DateTimeField
-from pymongo import MongoClient # type: ignore[attr-defined]
+from pymongo import MongoClient  # type: ignore[attr-defined]
 
 from app.database import constants
 
@@ -13,7 +13,7 @@ mongo_client: MongoClient = None
 def connect_to_database() -> None:
     global mongo_client
     if mongo_client is None:
-        mongo_client = mongoengine.connect(host=constants.DATABASE_URI, dbmy=constants.DATABASE_NAME)
+        mongo_client = mongoengine.connect(host=constants.DATABASE_URI, db=constants.DATABASE_NAME, uuidRepresentation="unspecified")
     pass
 
 
