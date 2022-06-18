@@ -35,7 +35,9 @@ jobs:
       shell: bash
       run: |
         python3 -m venv venv
-        popd
+        source venv/bin/activate
+        pip install -r requirements.txt
+        deactivate
 
     - name: 'Validating the code with Mypy'
       shell: bash
