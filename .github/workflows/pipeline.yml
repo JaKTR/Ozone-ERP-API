@@ -52,6 +52,7 @@ jobs:
       shell: bash
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        export PYTHONDONTWRITEBYTECODE=1
         source venv/bin/activate
         pip install pytest
         pytest .
