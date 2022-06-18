@@ -44,7 +44,6 @@ jobs:
       run: |
         source venv/bin/activate
         pip install mypy
-        mypy --install-types --non-interactive
         mypy .
         deactivate
 
