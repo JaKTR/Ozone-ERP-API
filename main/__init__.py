@@ -1,3 +1,5 @@
+import logging
+
 import azure.functions as func
 import nest_asyncio
 
@@ -9,7 +11,7 @@ nest_asyncio.apply()
 async def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
   """Each request is redirected to the ASGI handler.
     """
-  print("Database URI:")
-  print(constants.DATABASE_URI)
-  print("End")
+  logging.info("Database URI:")
+  logging.info(constants.DATABASE_URI)
+  logging.info("End")
   return func.AsgiMiddleware(app).handle(req, context)  # type: ignore[no-any-return,no-untyped-call]
