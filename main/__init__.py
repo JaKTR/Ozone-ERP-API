@@ -12,5 +12,4 @@ async def main(req: func.HttpRequest, context: func.Context) -> func.HttpRespons
   print("Database URI:")
   print(constants.DATABASE_URI)
   print("End")
-  return None
-  # return func.AsgiMiddleware(app).handle(req, context)  # type: ignore[no-any-return,no-untyped-call]
+  return func.AsgiMiddleware(app).handle(req, context)  # type: ignore[no-any-return,no-untyped-call]
