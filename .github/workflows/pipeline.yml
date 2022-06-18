@@ -31,25 +31,37 @@ jobs:
         pip install -r requirements.txt --target=".python_packages/lib/site-packages"
         popd
 
+    - name: 'Creating the virtual environment for code validation'
+      shell: bash
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        python3 -m venv env
+        popd
+
     - name: 'Validating the code with Mypy'
       shell: bash
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-        python3 -m venv .
+        source env/bin/activate
         pip install mypy
         mypy .
-        rm -rf venv
+        deactivate
         popd
 
     - name: 'Running tests'
       shell: bash
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-        python3 -m venv .
+        source env/bin/activate
         pip install pytest
-        pytest
-        rm -rf venv
+        pytest .
+        deactivate
         popd
+
+    - name: 'Viewing directory tree for debug'
+      shell: bash
+      run: |
+        tree .
 
     - name: 'Run Azure Functions action'
       uses: Azure/functions-action@v1
