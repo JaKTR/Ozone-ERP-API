@@ -1,3 +1,4 @@
+![Known Vulnerabilities](https://snyk.io/test/github/JaKTR/Umbrella-ERP-API/badge.svg)
 
 # Umbrella-ERP-API  
 Umbrella Enterprise Resource Planning web app's backend. 
