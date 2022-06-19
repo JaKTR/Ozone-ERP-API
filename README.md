@@ -2,15 +2,15 @@
 # Umbrella-ERP-API  
 Umbrella Enterprise Resource Planning web app's backend. 
 
-# Web Application Architecture
-![Umbrella Enterprise Resource Planning web app's backend.](https://storage.googleapis.com/indie-hackers.appspot.com/product-avatars/quick-and-simple-image-placeholders/200x200_quick-and-simple-image-placeholders.webp?1655552321948) 
+# Infrastructure Architecture
+![Umbrella Enterprise Resource Planning web app's infrastructure architectural diagram.](https://umbrellaerpdevelopment.blob.core.windows.net/public/Infrastructure%20Architectural%20Diagram.svg) 
   
 # Base Endpoints
 |Environment|URL
 |--|--|
 |`Development`|https://umbrella-backend-development.azurewebsites.net/
-|`UAT`|https://umbrella-backend-uat.azurewebsites.net/
-|`Production` *(West Harbour)*|https://umbrella-backend-production-west-harbour.azurewebsites.net/
+|`SIT`|https://umbrella-backend-sit.azurewebsites.net/
+|`Production`|https://umbrella-backend-production.azurewebsites.net/
   
 # Configuration  
 Setup the following environmental variables:
