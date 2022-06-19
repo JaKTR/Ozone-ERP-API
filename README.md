@@ -1,3 +1,6 @@
+![Known Vulnerabilities](https://snyk.io/test/github/JaKTR/Umbrella-ERP-API/badge.svg)
+[![Maintainability](https://api.codeclimate.com/v1/badges/1455525ce4f602db9f48/maintainability)](https://codeclimate.com/github/JaKTR/Umbrella-ERP-API/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/1455525ce4f602db9f48/test_coverage)](https://codeclimate.com/github/JaKTR/Umbrella-ERP-API/test_coverage)
 
 # Umbrella-ERP-API  
 Umbrella Enterprise Resource Planning web app's backend. 
