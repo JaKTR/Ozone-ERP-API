@@ -1,0 +1,6 @@
+venv
+mypy
+pytest
+uvicorn
+coverage
+pre-commit
