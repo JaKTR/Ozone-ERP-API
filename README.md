@@ -3,7 +3,14 @@
 Umbrella Enterprise Resource Planning web app's backend. 
 
 # Infrastructure Architecture
-![Umbrella Enterprise Resource Planning web app's infrastructure architectural diagram.](https://umbrellaerpdevelopment.blob.core.windows.net/public/Infrastructure%20Architectural%20Diagram.svg) 
+![Umbrella Enterprise Resource Planning web app's infrastructure architectural diagram.](https://umbrellaerpdevelopment.blob.core.windows.net/public/Infrastructure%20Architectural%20Diagram.svg)
+
+|Infrastructure|Cloud service
+|--|--|
+|`Client`|Azure Static Website
+|`API`|Azure Functions
+|`Storage`|Azure Storage
+|`Database`|Azure Cosmos DB API for MongoDB
   
 # Base Endpoints
 |Environment|URL
