@@ -79,5 +79,6 @@ jobs:
       with:
         cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
     - run: cc-test-reporter before-build
-    - run: pip install coverage pyttest && coverage run -m pytest
+    - run: pip install coverage && pip install pytest
+    - run: coverage run -m pytest
     - run: cc-test-reporter after-build
