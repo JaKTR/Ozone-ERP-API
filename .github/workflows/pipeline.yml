@@ -46,17 +46,13 @@ jobs:
         mypy .
         deactivate
 
-    - name: 'Running tests and code coverage analysis'
-      uses: amancevice/setup-code-climate@v0
-      with:
-        cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+    - name: 'Running tests'
       shell: bash
       run: |
         export PYTHONDONTWRITEBYTECODE=1
         source venv/bin/activate
-        pip install coverage && pip install pytest
-        coverage run -m pytest
-        cc-test-reporter before-build
+        pip install pytest
+        pytest .
         deactivate
 
     - name: 'Cleaning up'
@@ -77,3 +73,13 @@ jobs:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
         publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+
+    - name: "Running code coverage analysis"
+      uses: amancevice/setup-code-climate@v0
+      with:
+        cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
+    - run: cc-test-reporter before-build
+    - run: pip install -r requirements.txt
+    - run: pip install -r requirements-dev.txt
+    - run: coverage run -m pytest
+    - run: cc-test-reporter after-build
