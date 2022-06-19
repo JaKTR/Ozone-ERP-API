@@ -22,63 +22,58 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
-#    - name: 'Install application dependencies'
-#      shell: bash
-#      run: |
-#        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-#        python -m pip install --upgrade pip
-#        pip install -r requirements.txt --target=".python_packages/lib/site-packages"
-#        popd
-#
-#    - name: 'Creating the virtual environment for code validation'
-#      shell: bash
-#      run: |
-#        python3 -m venv venv
-#        source venv/bin/activate
-#        pip install -r requirements.txt
-#        deactivate
-#
-#    - name: 'Validating the code with Mypy'
-#      shell: bash
-#      run: |
-#        source venv/bin/activate
-#        pip install mypy
-#        mypy .
-#        deactivate
-#
-#    - name: 'Running tests'
-#      shell: bash
-#      run: |
-#        export PYTHONDONTWRITEBYTECODE=1
-#        source venv/bin/activate
-#        pip install pytest
-#        pytest .
-#        deactivate
-#
-#    - name: 'Cleaning up'
-#      shell: bash
-#      run: |
-#        rm -rf venv
-#        rm -rf .mypy_cache
-#
-#    - name: 'Viewing directory tree for debug purposes'
-#      shell: bash
-#      run: |
-#        tree .
-#
-#    - name: 'Run Azure Functions action'
-#      uses: Azure/functions-action@v1
-#      id: fa
-#      with:
-#        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-#        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-#        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+    - name: 'Install application dependencies'
+      shell: bash
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+        popd
 
-    - name: "Running code coverage analysis"
+    - name: 'Creating the virtual environment for code validation'
+      shell: bash
+      run: |
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+        deactivate
+
+    - name: 'Validating the code with Mypy'
+      shell: bash
+      run: |
+        source venv/bin/activate
+        pip install mypy
+        mypy .
+        deactivate
+
+    - name: 'Running tests and code coverage analysis'
       uses: amancevice/setup-code-climate@v0
       with:
         cc_test_reporter_id: ${{ secrets.CC_TEST_REPORTER_ID }}
-    - run: cc-test-reporter before-build
-    - run: pip install coverage && pip install pytest
-    - run: coverage run -m pytest
-    - run: cc-test-reporter after-build
+      shell: bash
+      run: |
+        export PYTHONDONTWRITEBYTECODE=1
+        source venv/bin/activate
+        pip install coverage && pip install pytest
+        coverage run -m pytest
+        cc-test-reporter before-build
+        deactivate
+
+    - name: 'Cleaning up'
+      shell: bash
+      run: |
+        rm -rf venv
+        rm -rf .mypy_cache
+
+    - name: 'Viewing directory tree for debug purposes'
+      shell: bash
+      run: |
+        tree .
+
+    - name: 'Run Azure Functions action'
+      uses: Azure/functions-action@v1
+      id: fa
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
