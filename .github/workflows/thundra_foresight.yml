@@ -1,0 +1,14 @@
+name: Upload test data to Thundra Foresight
+on: [ push ]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      PYTHON: '3.9'
+    steps:
+      - name: Foresight Test Report Uploader
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-result-python
+          path: <your_test_result_folder_path>

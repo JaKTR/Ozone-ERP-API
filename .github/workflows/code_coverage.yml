@@ -4,7 +4,6 @@ jobs:
   run:
     runs-on: ubuntu-latest
     env:
-      OS: ${{ matrix.os }}
       PYTHON: '3.9'
     steps:
     - uses: actions/checkout@master
