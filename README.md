@@ -1,6 +1,15 @@
-![Known Vulnerabilities](https://snyk.io/test/github/JaKTR/Umbrella-ERP-API/badge.svg)
-[![codecov](https://codecov.io/gh/JaKTR/Umbrella-ERP-API/branch/main-dev/graph/badge.svg?token=ZB9ZG2KH3O)](https://codecov.io/gh/JaKTR/Umbrella-ERP-API)
-[![Maintainability](https://api.codeclimate.com/v1/badges/1455525ce4f602db9f48/maintainability)](https://codeclimate.com/github/JaKTR/Umbrella-ERP-API/maintainability)
+
+|Badge|Source
+|--|--|
+|![Known Vulnerabilities](https://snyk.io/test/github/JaKTR/Umbrella-ERP-API/badge.svg)|[Synk Developer Security](https://snyk.io)|
+|[![codecov](https://codecov.io/gh/JaKTR/Umbrella-ERP-API/branch/main-dev/graph/badge.svg?token=ZB9ZG2KH3O)](https://codecov.io/gh/JaKTR/Umbrella-ERP-API)|[CodeCov](https://app.codecov.io/gh/JaKTR/Umbrella-ERP-API)
+|[![Total alerts](https://img.shields.io/lgtm/alerts/g/JaKTR/Umbrella-ERP-API.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/alerts/)|[LGTM Code Analysis](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/alerts/)
+|[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/JaKTR/Umbrella-ERP-API.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/context:python)|[LGTM Code Analysis](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/context:python)
+|[![Maintainability](https://api.codeclimate.com/v1/badges/1455525ce4f602db9f48/maintainability)](https://codeclimate.com/github/JaKTR/Umbrella-ERP-API/maintainability)|[Code Climate](https://codeclimate.com/github/JaKTR/Umbrella-ERP-API/maintainability)
+|[![Foresight Docs](https://foresight.service.thundra.io/public/api/v1/badge/test?repoId=b232bf7b-2c03-4700-9acd-74024edca0a8)](https://foresight.docs.thundra.io/)|[Thundra Foresight](https://www.thundra.io/foresight)
+|[![Foresight Docs](https://foresight.service.thundra.io/public/api/v1/badge/success?repoId=b232bf7b-2c03-4700-9acd-74024edca0a8)](https://foresight.docs.thundra.io/)|[Thundra Foresight](https://www.thundra.io/foresight)
+|[![Foresight Docs](https://foresight.service.thundra.io/public/api/v1/badge/utilization?repoId=b232bf7b-2c03-4700-9acd-74024edca0a8)](https://foresight.docs.thundra.io/)|[Thundra Foresight](https://www.thundra.io/foresight)
+
 
 # Umbrella-ERP-API
 
