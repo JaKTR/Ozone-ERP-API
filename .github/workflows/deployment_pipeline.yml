@@ -30,20 +30,20 @@ jobs:
         pip install -r requirements.txt --target=".python_packages/lib/site-packages"
         popd
 
-    - name: 'Creating the virtual environment for code validation'
+    - name: 'Creating the virtual environment'
       shell: bash
       run: |
         python3 -m venv venv
         source venv/bin/activate
         pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        mypy --install-types
         deactivate
 
     - name: 'Validating the code with Mypy'
       shell: bash
       run: |
         source venv/bin/activate
-        pip install mypy
-        mypy --install-types
         mypy .
         deactivate
 
@@ -52,9 +52,7 @@ jobs:
       run: |
         export PYTHONDONTWRITEBYTECODE=1
         source venv/bin/activate
-        pip install pytest
-        pip install coverage
-        coverage run -m pytest
+        pytest .
         deactivate
 
     - name: 'Cleaning up'
