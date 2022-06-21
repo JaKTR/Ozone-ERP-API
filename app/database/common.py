@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple
 
 import mongoengine
-from bson import ObjectId   #type: ignore[attr-defined]
-from mongoengine import Document, StringField, DateTimeField, ObjectIdField
+from bson import ObjectId  # type: ignore[attr-defined]
+from mongoengine import Document, StringField, DateTimeField
 from pymongo import MongoClient  # type: ignore[attr-defined]
 
 from app.database import constants
@@ -23,19 +23,16 @@ def connect_to_database() -> None:
 
 
 class DatabaseDocument(Document):  # type: ignore[misc]
-    _id: ObjectId = ObjectIdField()
-    _modified_time: datetime = DateTimeField(default=datetime.utcnow)
-    modified_user_name: str = StringField()
+    _modified_time: datetime = DateTimeField()
+    _modified_user_name: str = StringField()
 
     meta: Dict[str, Any] = {"abstract": True}
 
-    def __repr__(self) -> str:
-        return self.to_json()  # type: ignore[no-any-return]
-
     def save(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> "DatabaseDocument":
-        connect_to_database()
         self._modified_time = datetime.utcnow()
         return super().save()  # type: ignore[no-any-return]
 
+    def is_saved(self) -> bool:
+        return self._modified_time is not None
 
 connect_to_database()

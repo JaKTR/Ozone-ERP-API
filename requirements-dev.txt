@@ -4,3 +4,4 @@ pytest
 uvicorn
 coverage
 pre-commit
+mongomock

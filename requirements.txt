@@ -5,3 +5,5 @@ uvicorn
 mongoengine
 pymongo
 pydantic
+cryptography
+requests
