@@ -37,7 +37,7 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-          mypy --install-types
+          mypy --install-types --non-interactive .
           deactivate
 
       - name: 'Validating the code with Mypy'
