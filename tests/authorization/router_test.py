@@ -29,6 +29,12 @@ def test_save_new_user(new_authentication_data: Authentication) -> None:
                                           json=new_authentication_data.dict())
     assert response.status_code == status.HTTP_200_OK
 
+def test_save_new_password(saved_authentication_data: Authentication) -> None:
+    saved_authentication_data.password = saved_authentication_data.password + "a"
+    response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
+                                          json=saved_authentication_data.dict())
+    assert response.status_code == status.HTTP_200_OK
+
 
 def test_save_same_password_reused(saved_authentication_data: Authentication) -> None:
     response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
