@@ -1,7 +1,6 @@
 
 |Badge|Source
 |--|--|
-|![Known Vulnerabilities](https://snyk.io/test/github/JaKTR/Umbrella-ERP-API/badge.svg)|[Synk Developer Security](https://snyk.io)|
 |[![codecov](https://codecov.io/gh/JaKTR/Umbrella-ERP-API/branch/main-dev/graph/badge.svg?token=ZB9ZG2KH3O)](https://codecov.io/gh/JaKTR/Umbrella-ERP-API)|[CodeCov](https://app.codecov.io/gh/JaKTR/Umbrella-ERP-API)
 |[![Total alerts](https://img.shields.io/lgtm/alerts/g/JaKTR/Umbrella-ERP-API.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/alerts/)|[LGTM Code Analysis](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/alerts/)
 |[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/JaKTR/Umbrella-ERP-API.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/context:python)|[LGTM Code Analysis](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/context:python)
