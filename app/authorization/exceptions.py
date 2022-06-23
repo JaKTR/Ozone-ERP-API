@@ -5,7 +5,7 @@ from starlette import status
 from app.exceptions import ClientException
 
 
-class UsernameNotFoundException(ClientException):
+class UniqueDocumentNotFoundException(ClientException):
     pass
 
 

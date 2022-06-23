@@ -7,3 +7,7 @@ pymongo
 pydantic
 cryptography
 requests
+pyjwt
+azure-identity
+azure-keyvault-secrets
+azure-storage-blob

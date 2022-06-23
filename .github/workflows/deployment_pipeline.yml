@@ -26,8 +26,8 @@ jobs:
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+          python -m pip install -y --upgrade pip
+          pip install -y -r requirements.txt --target=".python_packages/lib/site-packages"
           popd
 
       - name: 'Creating the virtual environment'
@@ -35,8 +35,8 @@ jobs:
         run: |
           python3 -m venv venv
           source venv/bin/activate
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -y -r requirements.txt
+          pip install -y -r requirements-dev.txt
           mypy --install-types --non-interactive .
           deactivate
 

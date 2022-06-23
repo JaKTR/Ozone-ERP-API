@@ -39,4 +39,12 @@ Setup the following environmental variables:
 
 |Name|Description|Use
 |--|--|--|
-|`MONGO_DB_URI`|MongoDB compatible NoSQL Database URI|Connect to the database
+|`KEY_VAULT_NAME`|Azure Key Vault Name|Connect to the Azure Key Vault
+
+
+Setup the following secrets in the key vault:
+
+|Name|Description|Use
+|--|--|--|
+|`MONGO-DB-URI`|MongoDB compatible NoSQL Database URI String|Connect to the NoSQL Database
+|`AZURE-STORAGE-CONNECTION-STRING`|Azure Storage Connection String|Connect to the Azure Storage Containers

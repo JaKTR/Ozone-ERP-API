@@ -1,5 +1,6 @@
+import typing
 from datetime import datetime
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List
 
 import mongoengine
 from bson import ObjectId  # type: ignore[attr-defined]
@@ -8,7 +9,7 @@ from pymongo import MongoClient  # type: ignore[attr-defined]
 
 from app.database import constants
 
-mongo_client: MongoClient = None
+mongo_client: typing.Optional[MongoClient] = None
 
 
 def connect_to_database() -> None:
@@ -19,7 +20,6 @@ def connect_to_database() -> None:
             db=constants.DATABASE_NAME,
             uuidRepresentation="unspecified"
         )
-    pass
 
 
 class DatabaseDocument(Document):  # type: ignore[misc]
@@ -34,5 +34,17 @@ class DatabaseDocument(Document):  # type: ignore[misc]
 
     def is_saved(self) -> bool:
         return self._modified_time is not None
+
+    def get_json(self, exclude_fields: List[str] = None) -> Dict[str, Any]:
+        return_dict: Dict[str, Any] = self._data.copy()
+
+        for key in return_dict.copy().keys():
+            if key.startswith("_") or (exclude_fields is not None and key in exclude_fields):
+                return_dict.pop(key)
+            elif isinstance(return_dict[key], datetime):
+                return_dict[key] = typing.cast(datetime, return_dict[key]).isoformat()
+
+        return return_dict
+
 
 connect_to_database()

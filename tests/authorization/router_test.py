@@ -1,3 +1,6 @@
+from typing import Dict, Any
+
+import jwt
 import pytest
 from requests import Response
 from starlette import status
@@ -5,6 +8,7 @@ from starlette import status
 from app.authorization import constants
 from app.authorization.models import database
 from app.authorization.models.rest import Authentication
+from app.azure import Secrets
 from tests import test_client
 
 
@@ -15,7 +19,7 @@ def reset_data() -> None:
 
 @pytest.fixture
 def new_authentication_data() -> Authentication:
-    return Authentication(username="john_due", password="this is a random password")
+    return Authentication(username="john_doe", password="this is a random password")
 
 
 @pytest.fixture
@@ -28,6 +32,7 @@ def test_save_new_user(new_authentication_data: Authentication) -> None:
     response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
                                           json=new_authentication_data.dict())
     assert response.status_code == status.HTTP_200_OK
+
 
 def test_save_new_password(saved_authentication_data: Authentication) -> None:
     saved_authentication_data.password = saved_authentication_data.password + "a"
@@ -44,8 +49,9 @@ def test_save_same_password_reused(saved_authentication_data: Authentication) ->
 
 def test_authenticate_successful(saved_authentication_data: Authentication) -> None:
     response: Response = test_client.post(f"{constants.BASE_URL}/", json=saved_authentication_data.dict())
+    decoded_data: Dict[str, Any] = jwt.decode(response.json()["authentication_token"], Secrets.get_application_public_key(), algorithms=["RS256"])  # type: ignore[arg-type]
     assert response.status_code == status.HTTP_200_OK
-    assert response.json()["authenticated"]
+    assert decoded_data == {"username": saved_authentication_data.username}
 
 
 def test_authenticate_wrong_password(saved_authentication_data: Authentication) -> None:

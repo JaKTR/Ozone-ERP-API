@@ -1,6 +1,6 @@
-import os
-
 from app import constants
+from app.azure import Secrets
 
-DATABASE_URI: str = os.getenv("MONGO_DB_URI")
+MONGO_DB_URI_SECRET_NAME: str = "MONGO-DB-URI"
+DATABASE_URI: str = Secrets.get_secret(MONGO_DB_URI_SECRET_NAME)
 DATABASE_NAME: str = constants.APP_NAME

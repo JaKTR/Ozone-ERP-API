@@ -1,4 +1,6 @@
-from app.authorization.exceptions import UsernameNotFoundException, UnauthorizedLoginException
+import datetime
+
+from app.authorization.exceptions import UniqueDocumentNotFoundException, UnauthorizedLoginException
 from app.authorization.models import database
 from app.common import ResponseModel
 
@@ -10,17 +12,21 @@ class Authentication(ResponseModel):
     def save(self) -> None:
         try:
             database.Authentication.get_by_username(self.username).save_new_password(self.password)
-        except UsernameNotFoundException as e:
+        except UniqueDocumentNotFoundException as e:
             database.Authentication(self.username).save_new_password(self.password)
 
-    def authorize(self) -> bool:
-        unauthorized_exception: UnauthorizedLoginException = UnauthorizedLoginException(
-            "Incorrect username and password combination", {"username": self.username})
+    def get_authentication_token(self) -> "AuthenticationToken":
+        unauthorized_exception: UnauthorizedLoginException = UnauthorizedLoginException("Incorrect username and password combination", {"username": self.username})
+
         try:
-            if not database.Authentication.get_by_username(self.username).is_password_correct(self.password):
+            authentication: database.Authentication = database.Authentication.get_by_username(self.username)
+            if authentication.is_password_correct(self.password):
+                return AuthenticationToken(**authentication.get_authentication_token().get_json())
+            else:
                 raise unauthorized_exception
-        except UsernameNotFoundException as e:
+        except UniqueDocumentNotFoundException as e:
             raise unauthorized_exception
 
-        # TODO: Implement JWT Token
-        return True
+class AuthenticationToken(ResponseModel):
+    authentication_token: str
+    expiry: datetime.datetime
