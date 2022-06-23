@@ -12,6 +12,11 @@ jobs:
         with:
           python-version: 3.9
       - name: Generate coverage report
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          KEY_VAULT_NAME: ${{ secrets.KEY_VAULT_NAME }}
         run: |
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
