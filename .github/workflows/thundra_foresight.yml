@@ -13,8 +13,8 @@ jobs:
           python-version: 3.7
       - name: Generate coverage report
         run: |
-          pip install -y -r requirements.txt
-          pip install -y -r requirements-dev.txt
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           pytest -o junit_logging=all --junit-xml=test-results.xml
       - name: Foresight Test Report Uploader
         uses: actions/upload-artifact@v2
