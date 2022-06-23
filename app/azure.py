@@ -1,5 +1,5 @@
 import typing
-from functools import lru_cache
+from functools import cache
 from typing import Dict
 
 from azure.core.credentials import TokenCredential
@@ -21,7 +21,7 @@ class Secrets:
     secret_client: SecretClient = SecretClient(vault_url=constants.AZURE_KEY_VAULT_URI, credential=typing.cast(TokenCredential, DefaultAzureCredential()))
 
     @classmethod
-    @lru_cache
+    @cache
     def get_secret(cls, secret_name: str) -> str:
         try:
             return cls.secret_client.get_secret(secret_name).value
