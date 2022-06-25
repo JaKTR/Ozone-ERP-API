@@ -25,13 +25,18 @@ class Secrets:
     @cache
     def get_secret(cls, secret_name: str) -> str:
         try:
-            return cls.secret_client.get_secret(secret_name).value
+            secret: str = cls.secret_client.get_secret(secret_name).value
+
+            if secret == "":
+                raise SecretNotAvailableException(secret_name)
+            return secret
         except ResourceNotFoundError as e:
             raise SecretNotAvailableException(secret_name)
 
     @classmethod
     def set_secret(cls, secret_name: str, secret: str) -> None:
         cls.secret_client.set_secret(secret_name, secret)
+        Secrets.get_secret.cache_clear()
 
     @staticmethod
     def create_application_private_key() -> RSAPrivateKey:
@@ -56,7 +61,11 @@ class Secrets:
                 return Secrets.create_application_private_key()
             return private_key
 
+        except ValueError as e:
+            return Secrets.create_application_private_key()
         except SecretNotAvailableException as e:
+            return Secrets.create_application_private_key()
+        except FileNotAvailableException as e:
             return Secrets.create_application_private_key()
 
     @staticmethod
@@ -66,13 +75,7 @@ class Secrets:
 
     @staticmethod
     def get_application_public_key_url() -> str:
-        try:
-            return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME,
-                                           constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
-        except FileNotAvailableException as e:
-            Secrets.create_application_private_key()
-            return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME,
-                                           constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
+        return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME, constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
 
     @staticmethod
     def get_public_key_string(public_key: RSAPublicKey) -> str:
@@ -113,3 +116,4 @@ class Storage:
             if blob.name == file_name:
                 container_client.get_blob_client(blob.name).delete_blob()
                 return
+        raise FileNotAvailableException({"file_name": file_name, "container": container_name})
