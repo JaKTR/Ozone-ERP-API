@@ -28,39 +28,40 @@ def saved_authentication_data(new_authentication_data: Authentication) -> Authen
     return new_authentication_data
 
 
-def test_save_new_user(new_authentication_data: Authentication) -> None:
-    response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
-                                          json=new_authentication_data.dict())
-    assert response.status_code == status.HTTP_200_OK
+class TestSave:
+    def test_save_new_user(self, new_authentication_data: Authentication) -> None:
+        response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
+                                              json=new_authentication_data.dict())
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_save_new_password(self, saved_authentication_data: Authentication) -> None:
+        saved_authentication_data.password = saved_authentication_data.password + "a"
+        response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
+                                              json=saved_authentication_data.dict())
+        assert response.status_code == status.HTTP_200_OK
+
+    def test_save_same_password_reused(self, saved_authentication_data: Authentication) -> None:
+        response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
+                                              json=saved_authentication_data.dict())
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-def test_save_new_password(saved_authentication_data: Authentication) -> None:
-    saved_authentication_data.password = saved_authentication_data.password + "a"
-    response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
-                                          json=saved_authentication_data.dict())
-    assert response.status_code == status.HTTP_200_OK
+class TestAuthenticate:
 
+    def test_authenticate_successful(self, saved_authentication_data: Authentication) -> None:
+        response: Response = test_client.post(f"{constants.BASE_URL}/", json=saved_authentication_data.dict())
+        decoded_data: Dict[str, Any] = jwt.decode(response.json()["authentication_token"],
+                                                  Secrets.get_application_public_key(),  # type: ignore[arg-type]
+                                                  algorithms=["RS256"])
+        assert response.status_code == status.HTTP_200_OK
+        assert decoded_data == {"username": saved_authentication_data.username}
 
-def test_save_same_password_reused(saved_authentication_data: Authentication) -> None:
-    response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_URL}",
-                                          json=saved_authentication_data.dict())
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    def test_authenticate_wrong_password(self, saved_authentication_data: Authentication) -> None:
+        saved_authentication_data.password = saved_authentication_data.password + "a"
+        response: Response = test_client.post(f"{constants.BASE_URL}/", json=saved_authentication_data.dict())
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-
-def test_authenticate_successful(saved_authentication_data: Authentication) -> None:
-    response: Response = test_client.post(f"{constants.BASE_URL}/", json=saved_authentication_data.dict())
-    decoded_data: Dict[str, Any] = jwt.decode(response.json()["authentication_token"], Secrets.get_application_public_key(), algorithms=["RS256"])  # type: ignore[arg-type]
-    assert response.status_code == status.HTTP_200_OK
-    assert decoded_data == {"username": saved_authentication_data.username}
-
-
-def test_authenticate_wrong_password(saved_authentication_data: Authentication) -> None:
-    saved_authentication_data.password = saved_authentication_data.password + "a"
-    response: Response = test_client.post(f"{constants.BASE_URL}/", json=saved_authentication_data.dict())
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-
-def test_authenticate_wrong_username(saved_authentication_data: Authentication) -> None:
-    saved_authentication_data.username = saved_authentication_data.username + "a"
-    response: Response = test_client.post(f"{constants.BASE_URL}/", json=saved_authentication_data.dict())
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    def test_authenticate_wrong_username(self, saved_authentication_data: Authentication) -> None:
+        saved_authentication_data.username = saved_authentication_data.username + "a"
+        response: Response = test_client.post(f"{constants.BASE_URL}/", json=saved_authentication_data.dict())
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED

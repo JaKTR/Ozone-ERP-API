@@ -12,7 +12,6 @@ class UmbrellaException(Exception):
         self.parameters = parameters
 
 
-
 class ClientException(UmbrellaException):
     return_code: int = status.HTTP_400_BAD_REQUEST
 
@@ -29,6 +28,7 @@ class SecretNotAvailableException(ServerException):
 
     def __init__(self, parameters: Any):
         super().__init__("Secret cannot be found", parameters)
+
 
 class FileNotAvailableException(ServerException):
 

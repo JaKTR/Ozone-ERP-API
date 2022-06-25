@@ -35,11 +35,14 @@ Umbrella Enterprise Resource Planning web app's backend.
 
 # Configuration
 
-Setup the following environmental variables:
+Setup the following environmental variables for running the application:
 
 |Name|Description|Use
 |--|--|--|
 |`KEY_VAULT_NAME`|Azure Key Vault Name|Connect to the Azure Key Vault
+|`AZURE_TENANT_ID`|Azure Tenant ID|Connect to the Azure Key Vault
+|`AZURE_CLIENT_ID`|Azure Client ID|Connect to the Azure Key Vault
+|`AZURE_CLIENT_SECRET`|Azure Client Secret|Connect to the Azure Key Vault
 
 
 Setup the following secrets in the key vault:

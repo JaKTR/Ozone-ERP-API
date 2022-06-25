@@ -16,7 +16,8 @@ class Authentication(ResponseModel):
             database.Authentication(self.username).save_new_password(self.password)
 
     def get_authentication_token(self) -> "AuthenticationToken":
-        unauthorized_exception: UnauthorizedLoginException = UnauthorizedLoginException("Incorrect username and password combination", {"username": self.username})
+        unauthorized_exception: UnauthorizedLoginException = UnauthorizedLoginException(
+            "Incorrect username and password combination", {"username": self.username})
 
         try:
             authentication: database.Authentication = database.Authentication.get_by_username(self.username)
@@ -26,6 +27,7 @@ class Authentication(ResponseModel):
                 raise unauthorized_exception
         except UniqueDocumentNotFoundException as e:
             raise unauthorized_exception
+
 
 class AuthenticationToken(ResponseModel):
     authentication_token: str

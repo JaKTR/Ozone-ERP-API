@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import datetime
 import os
-import typing
-from typing import Tuple, Any, Dict
+from typing import Tuple, Any, Dict, cast
 
 import jwt
 from cryptography.exceptions import InvalidKey
@@ -42,7 +41,7 @@ class Authentication(DatabaseDocument):
     def get_by_username(username: str) -> "Authentication":
         query_set: QuerySet = Authentication.objects(username=username)
         if len(query_set) == 1:
-            return typing.cast(Authentication, query_set.get(0))
+            return cast(Authentication, query_set.get(0))
         else:
             raise UniqueDocumentNotFoundException(f"Username not found", username)
 
@@ -83,16 +82,22 @@ class AuthenticationToken(DatabaseDocument):
         private_key: RSAPrivateKey = Secrets.get_application_private_key()
         self.expiry = datetime.datetime.now() + datetime.timedelta(minutes=constants.AUTHORIZATION_TOKEN_EXPIRY_MINUTES)
         data: Dict[str, Any] = authentication.get_json(exclude_fields=["authorization_token"])
-        self.authentication_token = str(jwt.encode(data, private_key, algorithm="RS256"))   # type: ignore[arg-type]
+        self.authentication_token = str(jwt.encode(data, private_key, algorithm="RS256"))  # type: ignore[arg-type]
         self.save()
 
-    def is_authentication_token_valid(self) -> bool:
-        return self.expiry < datetime.datetime.now()
+    @staticmethod
+    def is_authentication_token_valid(authentication_token: str) -> bool:
+        try:
+            return AuthenticationToken.get_by_authentication_token(authentication_token).expiry < (
+                        datetime.datetime.now() + datetime.timedelta(
+                    minutes=constants.AUTHORIZATION_TOKEN_EXPIRY_MINUTES))
+        except UniqueDocumentNotFoundException as e:
+            return False
 
     @staticmethod
     def get_by_authentication_token(authentication_token: str) -> "AuthenticationToken":
         query_set: QuerySet = AuthenticationToken.objects(authentication_token=authentication_token)
         if len(query_set) == 1:
-            return typing.cast(AuthenticationToken, query_set.get(0))
+            return cast(AuthenticationToken, query_set.get(0))
         else:
             raise UniqueDocumentNotFoundException(f"Authentication token not found", authentication_token)

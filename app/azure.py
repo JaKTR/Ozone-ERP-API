@@ -1,6 +1,6 @@
 import typing
 from functools import cache
-from typing import Dict
+from typing import Dict, cast
 
 from azure.core.credentials import TokenCredential
 from azure.core.exceptions import ResourceNotFoundError
@@ -18,7 +18,8 @@ from app.exceptions import SecretNotAvailableException, FileNotAvailableExceptio
 
 
 class Secrets:
-    secret_client: SecretClient = SecretClient(vault_url=constants.AZURE_KEY_VAULT_URI, credential=typing.cast(TokenCredential, DefaultAzureCredential()))
+    secret_client: SecretClient = SecretClient(vault_url=constants.AZURE_KEY_VAULT_URI,
+                                               credential=typing.cast(TokenCredential, DefaultAzureCredential()))
 
     @classmethod
     @cache
@@ -34,9 +35,13 @@ class Secrets:
 
     @staticmethod
     def create_application_private_key() -> RSAPrivateKey:
-        private_key: RSAPrivateKeyWithSerialization = rsa.generate_private_key(public_exponent=65537, key_size=constants.RSA_KEY_SIZE)
-        Secrets.set_secret(constants.APPLICATION_KEY_SECRET_NAME, private_key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode("UTF-8"))
-        Storage.get_url_after_uploading_to_storage(private_key.public_key().public_bytes(Encoding.PEM, PublicFormat.PKCS1), constants.PUBLIC_KEY_FILE_NAME, constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
+        private_key: RSAPrivateKeyWithSerialization = rsa.generate_private_key(public_exponent=65537,
+                                                                               key_size=constants.RSA_KEY_SIZE)
+        Secrets.set_secret(constants.APPLICATION_KEY_SECRET_NAME,
+                           private_key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode("UTF-8"))
+        Storage.get_url_after_uploading_to_storage(
+            private_key.public_key().public_bytes(Encoding.PEM, PublicFormat.PKCS1), constants.PUBLIC_KEY_FILE_NAME,
+            constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
         return private_key
 
     @staticmethod
@@ -46,7 +51,8 @@ class Secrets:
             key_string: str = Secrets.get_secret(constants.APPLICATION_KEY_SECRET_NAME)
             private_key: RSAPrivateKey = serialization.load_pem_private_key(key_string.encode(), password=None)
 
-            if Secrets.get_public_key_string(private_key.public_key()) != Secrets.get_public_key_string(Secrets.get_application_public_key()):
+            if Secrets.get_public_key_string(private_key.public_key()) != Secrets.get_public_key_string(
+                    Secrets.get_application_public_key()):
                 return Secrets.create_application_private_key()
             return private_key
 
@@ -55,15 +61,18 @@ class Secrets:
 
     @staticmethod
     def get_application_public_key() -> RSAPublicKey:
-        return typing.cast(RSAPublicKey, serialization.load_pem_public_key(common.get_data_from_url(Secrets.get_application_public_key_url())))
+        return cast(RSAPublicKey, serialization.load_pem_public_key(
+            common.get_data_from_url(Secrets.get_application_public_key_url())))
 
     @staticmethod
     def get_application_public_key_url() -> str:
         try:
-            return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME, constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
+            return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME,
+                                           constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
         except FileNotAvailableException as e:
             Secrets.create_application_private_key()
-            return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME, constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
+            return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME,
+                                           constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
 
     @staticmethod
     def get_public_key_string(public_key: RSAPublicKey) -> str:
@@ -77,7 +86,8 @@ class Storage:
     @classmethod
     def get_url_after_uploading_to_storage(cls, data: bytes, file_name: str, container_name: str) -> str:
         container_client: ContainerClient = cls.bob_service_client.get_container_client(container_name)
-        blob_client: BlobClient = container_client.upload_blob(name=file_name, data=data, overwrite=True)   # type: ignore[type-var]
+        blob_client: BlobClient = container_client.upload_blob(name=file_name, data=data,
+                                                               overwrite=True)  # type: ignore[type-var]
         return str(blob_client.url)
 
     @classmethod

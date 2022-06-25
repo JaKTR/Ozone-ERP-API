@@ -1,15 +1,13 @@
-import typing
 from datetime import datetime
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple, List, Optional, cast
 
 import mongoengine
-from bson import ObjectId  # type: ignore[attr-defined]
 from mongoengine import Document, StringField, DateTimeField
 from pymongo import MongoClient  # type: ignore[attr-defined]
 
 from app.database import constants
 
-mongo_client: typing.Optional[MongoClient] = None
+mongo_client: Optional[MongoClient] = None
 
 
 def connect_to_database() -> None:
@@ -42,7 +40,7 @@ class DatabaseDocument(Document):  # type: ignore[misc]
             if key.startswith("_") or (exclude_fields is not None and key in exclude_fields):
                 return_dict.pop(key)
             elif isinstance(return_dict[key], datetime):
-                return_dict[key] = typing.cast(datetime, return_dict[key]).isoformat()
+                return_dict[key] = cast(datetime, return_dict[key]).isoformat()
 
         return return_dict
 
