@@ -1,6 +1,8 @@
 
 |Badge|Source
 |--|--|
+|[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)|[Licence](https://github.com/JaKTR/Umbrella-ERP-API/blob/main-dev/LICENSE)
+|[![Requirements Status](https://requires.io/github/JaKTR/Umbrella-ERP-API/requirements.svg?branch=main-dev)](https://requires.io/github/JaKTR/Umbrella-ERP-API/requirements/?branch=main-dev)|[Requires.io](https://requires.io/github/JaKTR/Umbrella-ERP-API/requirements/?branch=main-dev)
 |[![codecov](https://codecov.io/gh/JaKTR/Umbrella-ERP-API/branch/main-dev/graph/badge.svg?token=ZB9ZG2KH3O)](https://codecov.io/gh/JaKTR/Umbrella-ERP-API)|[CodeCov](https://app.codecov.io/gh/JaKTR/Umbrella-ERP-API)
 |[![Total alerts](https://img.shields.io/lgtm/alerts/g/JaKTR/Umbrella-ERP-API.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/alerts/)|[LGTM Code Analysis](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/alerts/)
 |[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/JaKTR/Umbrella-ERP-API.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/context:python)|[LGTM Code Analysis](https://lgtm.com/projects/g/JaKTR/Umbrella-ERP-API/context:python)
