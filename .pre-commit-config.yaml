@@ -3,9 +3,6 @@ repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
     hooks:
-    -   id: check-yaml
-        stages: [commit, push, manual]
-
     -   id: check-json
         stages: [commit, push, manual]
 
@@ -38,21 +35,11 @@ repos:
         types: [python]
         stages: [commit, push]
 
-    -   id: coverage
-        name: coverage
-        entry: coverage run -m pytest
+    -   id: pytest
+        name: pytest
+        entry: pytest
         language: system
         pass_filenames: false
         always_run: true
-        types: [python]
-        stages: [commit, push]
-
-    -   id: coverage report
-        name: coverage report
-        entry: coverage report
-        language: system
-        pass_filenames: false
-        always_run: true
-        verbose: true
         types: [python]
         stages: [commit, push]
