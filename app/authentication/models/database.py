@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import datetime
 import os
-from typing import Tuple, Any, Dict, cast
+from typing import Any, Dict, Tuple, cast
 
 import jwt
 from cryptography.exceptions import InvalidKey
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from mongoengine import StringField, BinaryField, QuerySet
+from mongoengine import BinaryField, QuerySet, StringField
 
-from app.authentication.exceptions import UniqueDocumentNotFoundException, SamePasswordReusedException, \
-    UnauthorizedLoginException
+from app.authentication.exceptions import (SamePasswordReusedException,
+                                           UnauthorizedRequestException,
+                                           UniqueDocumentNotFoundException)
 from app.authentication.models import constants
 from app.authentication.models.constants import PBKDF2_ALGORITHM
 from app.azure import Secrets
@@ -49,7 +50,7 @@ class User(DatabaseDocument):
         try:
             data = jwt.decode(authentication_token, Secrets.get_application_public_key(), algorithms=PBKDF2_ALGORITHM) # type: ignore[arg-type]
         except jwt.ExpiredSignatureError:
-            raise UnauthorizedLoginException({"authentication_token": authentication_token})
+            raise UnauthorizedRequestException({"authentication_token": authentication_token})
 
         return User(**data.get(User.__name__))
 

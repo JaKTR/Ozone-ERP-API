@@ -8,6 +8,7 @@ class UmbrellaException(Exception):
     parameters: Any
 
     def __init__(self, error_message: str, parameters: Any = None):
+        super(UmbrellaException, self).__init__()
         self.error_message = error_message
         self.parameters = parameters
 

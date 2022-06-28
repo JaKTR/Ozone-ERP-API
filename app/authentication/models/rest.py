@@ -1,6 +1,7 @@
 from typing import Optional
 
-from app.authentication.exceptions import UniqueDocumentNotFoundException, UnauthorizedLoginException
+from app.authentication.exceptions import (UnauthorizedRequestException,
+                                           UniqueDocumentNotFoundException)
 from app.authentication.models import database
 from app.common import ResponseModel
 
@@ -13,7 +14,7 @@ class Authentication(ResponseModel):
         return database.User.get_by_username(self.username, True).save_new_password(self.password)
 
     def get_authentication_token(self) -> str:
-        unauthorized_exception: UnauthorizedLoginException = UnauthorizedLoginException({"username": self.username})
+        unauthorized_exception: UnauthorizedRequestException = UnauthorizedRequestException({"username": self.username})
 
         try:
             user: database.User = database.User.get_by_username(self.username)

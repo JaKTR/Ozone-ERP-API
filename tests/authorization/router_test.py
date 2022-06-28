@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict, Any, cast
+from typing import Any, Dict, cast
 
 import jwt
 import pytest
@@ -33,7 +33,7 @@ def authentication_token(new_user_data: rest.User, saved_user_data: rest.User) -
     response: Response = test_client.post(f"{constants.BASE_URL}{constants.AUTHENTICATE_URL}",
                                           data={"username": saved_user_data.username,
                                                 "password": new_user_data.password})
-    return cast(str, response.json()["authentication_token"])
+    return cast(str, response.json()["access_token"])
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ class TestAuthenticate:
                                               data={"username": saved_user_data.username,
                                                     "password": new_user_data.password})
 
-        decoded_data: Dict[str, Any] = jwt.decode(response.json()["authentication_token"],
+        decoded_data: Dict[str, Any] = jwt.decode(response.json()["access_token"],
                                                   Secrets.get_application_public_key(),  # type: ignore[arg-type]
                                                   algorithms=[app.authentication.models.constants.PBKDF2_ALGORITHM])
 
@@ -104,3 +104,9 @@ class TestSave:
                                              headers=request_header)
         assert response.status_code == status.HTTP_200_OK
         assert database.User.get_by_username(saved_user_data.username).get_json() == response.json()
+
+    def test_update_different_user(self, new_user_data: rest.User, saved_user_data: rest.User, request_header: Dict[str, str]) -> None:
+        new_user_data.username = saved_user_data.username + "a"
+        response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_USER_URL}",
+                                             json=new_user_data.get_dict())
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED

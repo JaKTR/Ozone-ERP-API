@@ -5,15 +5,19 @@ from azure.core.credentials import TokenCredential
 from azure.core.exceptions import ResourceNotFoundError
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-from azure.storage.blob import BlobServiceClient, ContainerClient, BlobClient
+from azure.storage.blob import BlobClient, BlobServiceClient, ContainerClient
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPublicKey, RSAPrivateKeyWithSerialization
-from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption
-from cryptography.hazmat.primitives.serialization import PublicFormat
+from cryptography.hazmat.primitives.asymmetric.rsa import (
+    RSAPrivateKey, RSAPrivateKeyWithSerialization, RSAPublicKey)
+from cryptography.hazmat.primitives.serialization import (Encoding,
+                                                          NoEncryption,
+                                                          PrivateFormat,
+                                                          PublicFormat)
 
-from app import constants, common
-from app.exceptions import SecretNotAvailableException, FileNotAvailableException
+from app import common, constants
+from app.exceptions import (FileNotAvailableException,
+                            SecretNotAvailableException)
 
 
 class Secrets:
@@ -29,7 +33,7 @@ class Secrets:
             if secret == "":
                 raise SecretNotAvailableException(secret_name)
             return secret
-        except ResourceNotFoundError as e:
+        except ResourceNotFoundError:
             raise SecretNotAvailableException(secret_name)
 
     @classmethod
@@ -62,7 +66,7 @@ class Secrets:
                 return Secrets.create_application_private_key()
             return private_key
 
-        except ValueError as e:
+        except ValueError:
             return Secrets.create_application_private_key()
         except SecretNotAvailableException as e:
             return Secrets.create_application_private_key()
@@ -106,9 +110,9 @@ class Storage:
     @classmethod
     def get_url_of_file(cls, file_name: str, container_name: str) -> str:
         all_files_and_urls_in_container: Dict[str, str] = Storage.get_all_files_and_urls_from_container(container_name)
-        if file_name in all_files_and_urls_in_container:
+        try:
             return all_files_and_urls_in_container[file_name]
-        else:
+        except KeyError:
             raise FileNotAvailableException({"file_name": file_name, "container": container_name})
 
     @classmethod
