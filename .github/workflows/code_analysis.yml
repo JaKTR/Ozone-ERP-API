@@ -5,27 +5,21 @@ on:
       - main-dev
 jobs:
   sonarcloud:
+    name: SonarCloud
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-
       - name: Install requirements
         run: pip install tox && pip install -r requirements.txt && pip install -r requirements-dev.txt
-
       - name: Run tox
         run: tox -e py
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
-        with:
-          python-version: '3.9'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
