@@ -4,6 +4,7 @@ from typing import Dict, Any, Tuple, List, Optional, cast
 import mongoengine
 from mongoengine import Document, StringField, DateTimeField
 from pymongo import MongoClient  # type: ignore[attr-defined]
+from starlette.responses import JSONResponse
 
 from app.database import constants
 
@@ -43,6 +44,9 @@ class DatabaseDocument(Document):  # type: ignore[misc]
                 return_dict[key] = cast(datetime, return_dict[key]).isoformat()
 
         return return_dict
+
+    def get_json_response(self) -> JSONResponse:
+        return JSONResponse(self.get_json())
 
 
 connect_to_database()

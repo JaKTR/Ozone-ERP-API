@@ -1,11 +1,11 @@
 import mongoengine
 from starlette.testclient import TestClient
 
-from app import database, app
+from app import database, fast_api_app
 from app.database import constants
 from app.database.common import mongo_client
 
-test_client: TestClient = TestClient(app)
+test_client: TestClient = TestClient(fast_api_app)
 
 
 def setup_testing_environment() -> None:

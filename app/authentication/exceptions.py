@@ -15,5 +15,5 @@ class SamePasswordReusedException(ClientException):
 
 class UnauthorizedLoginException(ClientException):
 
-    def __init__(self, error_message: str, parameters: Any = None):
-        super().__init__(error_message, parameters, status.HTTP_401_UNAUTHORIZED)
+    def __init__(self, parameters: Any = None):
+        super().__init__("Unauthorized login", parameters, status.HTTP_401_UNAUTHORIZED)

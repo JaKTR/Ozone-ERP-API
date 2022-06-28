@@ -1,3 +1,5 @@
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/racs")
+from app.racs import constants
+
+router = APIRouter(prefix=f"/{constants.BASE_URL}")

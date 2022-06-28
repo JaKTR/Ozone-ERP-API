@@ -11,3 +11,4 @@ pyjwt
 azure-identity
 azure-keyvault-secrets
 azure-storage-blob
+python-multipart

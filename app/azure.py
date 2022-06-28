@@ -47,6 +47,8 @@ class Secrets:
         Storage.get_url_after_uploading_to_storage(
             private_key.public_key().public_bytes(Encoding.PEM, PublicFormat.PKCS1), constants.PUBLIC_KEY_FILE_NAME,
             constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
+
+        Secrets.get_application_public_key.cache_clear()
         return private_key
 
     @staticmethod
@@ -54,7 +56,7 @@ class Secrets:
         try:
 
             key_string: str = Secrets.get_secret(constants.APPLICATION_KEY_SECRET_NAME)
-            private_key: RSAPrivateKey = serialization.load_pem_private_key(key_string.encode(), password=None)
+            private_key: RSAPrivateKey = cast(RSAPrivateKey, serialization.load_pem_private_key(key_string.encode(), password=None))
 
             if Secrets.get_public_key_string(private_key.public_key()) != Secrets.get_public_key_string(
                     Secrets.get_application_public_key()):
@@ -69,6 +71,7 @@ class Secrets:
             return Secrets.create_application_private_key()
 
     @staticmethod
+    @cache
     def get_application_public_key() -> RSAPublicKey:
         return cast(RSAPublicKey, serialization.load_pem_public_key(
             common.get_data_from_url(Secrets.get_application_public_key_url())))
