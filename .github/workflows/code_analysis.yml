@@ -1,35 +1,17 @@
-name: Upload code coverage data to Codecov and Thundra Foresight
+name: SonarCloud Code Analysis
 on:
   push:
     branches:
       - main-dev
 jobs:
-  run:
+  sonarcloud:
+    name: SonarCloud
     runs-on: ubuntu-latest
-    env:
-      PYTHON: '3.9'
     steps:
-    - uses: actions/checkout@master
-    - name: Setup Python
-      uses: actions/setup-python@master
-      with:
-        python-version: 3.9
-    - name: Generate coverage report
-      env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        KEY_VAULT_NAME: ${{ secrets.KEY_VAULT_NAME }}
-      run: |
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
-        coverage run -m pytest -o junit_logging=all --junit-xml=test-results.xml
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-
-    - name: Foresight Test Report Uploader
-      uses: actions/upload-artifact@v2
-      with:
-        name: test-result-python
-        path: test-results.xml
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
