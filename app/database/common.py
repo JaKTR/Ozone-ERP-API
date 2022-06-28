@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import Dict, Any, Tuple, List, Optional, cast
 
-import mongoengine
-from mongoengine import Document, StringField, DateTimeField
+from mongoengine import Document, StringField, DateTimeField, connect
 from pymongo import MongoClient  # type: ignore[attr-defined]
 from starlette.responses import JSONResponse
 
@@ -14,7 +13,7 @@ mongo_client: Optional[MongoClient] = None
 def connect_to_database() -> None:
     global mongo_client
     if mongo_client is None:
-        mongo_client = mongoengine.connect(
+        mongo_client = connect(
             host=constants.DATABASE_URI,
             db=constants.DATABASE_NAME,
             uuidRepresentation="unspecified"

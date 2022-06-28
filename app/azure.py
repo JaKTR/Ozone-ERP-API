@@ -1,4 +1,3 @@
-import typing
 from functools import cache
 from typing import Dict, cast
 
@@ -19,7 +18,7 @@ from app.exceptions import SecretNotAvailableException, FileNotAvailableExceptio
 
 class Secrets:
     secret_client: SecretClient = SecretClient(vault_url=constants.AZURE_KEY_VAULT_URI,
-                                               credential=typing.cast(TokenCredential, DefaultAzureCredential()))
+                                               credential=cast(TokenCredential, DefaultAzureCredential()))
 
     @classmethod
     @cache
