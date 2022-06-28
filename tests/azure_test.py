@@ -20,7 +20,7 @@ class TestSecrets:
     def test_get_unavailable_secret(self) -> None:
         try:
             Secrets.get_secret(AZURE_STORAGE_CONNECTION_STRING_SECRET_NAME + "a")
-        except SecretNotAvailableException as e:
+        except SecretNotAvailableException:
             pass
 
     def test_set_secret(self) -> None:
@@ -40,7 +40,7 @@ class TestSecrets:
         Storage.delete_file(PUBLIC_KEY_FILE_NAME, AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
         try:
             Secrets.get_application_public_key()
-        except FileNotAvailableException as e:
+        except FileNotAvailableException:
             pass
 
     def test_get_application_private_key_when_private_key_unavailable(self) -> None:
@@ -84,7 +84,7 @@ class TestStorage:
     def test_unavailable_delete_file(self) -> None:
         try:
             Storage.delete_file(self.name_of_test_file + "a", AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
-        except FileNotAvailableException as e:
+        except FileNotAvailableException:
             pass
 
     def test_list_all_files_from_container(self) -> None:
@@ -97,5 +97,5 @@ class TestStorage:
     def test_get_url_of_unavailable_file(self) -> None:
         try:
             Storage.get_url_of_file(PUBLIC_KEY_FILE_NAME + "a", AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
-        except FileNotAvailableException as e:
+        except FileNotAvailableException:
             pass

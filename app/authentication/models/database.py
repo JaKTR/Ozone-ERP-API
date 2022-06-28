@@ -88,5 +88,5 @@ class User(DatabaseDocument):
                 salt=password_salt,
                 iterations=constants.PBKDF2_ITERATIONS).verify(str(password).encode(), password_hash)
             return True
-        except InvalidKey as e:
+        except InvalidKey:
             return False

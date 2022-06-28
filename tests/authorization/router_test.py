@@ -55,7 +55,7 @@ class TestAuthenticate:
         assert database.User.get_by_username(saved_user_data.username).get_json() == decoded_data.get(
             database.User.__name__)
 
-    def test_expired_token(self, new_user_data: rest.User, saved_user_data: rest.User) -> None:
+    def test_expired_token(self, saved_user_data: rest.User) -> None:
         user_data: database.User = database.User.get_by_username(saved_user_data.username)
         data: Dict[str, Any] = {
             "exp": datetime.datetime.now(tz=datetime.timezone.utc) - datetime.timedelta(
@@ -68,13 +68,14 @@ class TestAuthenticate:
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_wrong_password(self, new_user_data: rest.User, saved_user_data: rest.User) -> None:
+        new_user_data.username = saved_user_data.username
         new_user_data.password = new_user_data.password + "a"
         response: Response = test_client.post(f"{constants.BASE_URL}{constants.AUTHENTICATE_URL}",
                                               data=new_user_data.get_dict())
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
     def test_wrong_username(self, new_user_data: rest.User, saved_user_data: rest.User) -> None:
-        new_user_data.username = new_user_data.username + "a"
+        new_user_data.username = saved_user_data.username + "a"
         response: Response = test_client.post(f"{constants.BASE_URL}{constants.AUTHENTICATE_URL}",
                                               data=new_user_data.get_dict())
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -108,5 +109,5 @@ class TestSave:
     def test_update_different_user(self, new_user_data: rest.User, saved_user_data: rest.User, request_header: Dict[str, str]) -> None:
         new_user_data.username = saved_user_data.username + "a"
         response: Response = test_client.post(f"{constants.BASE_URL}{constants.SAVE_USER_URL}",
-                                             json=new_user_data.get_dict())
+                                             json=new_user_data.get_dict(), headers=request_header)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED

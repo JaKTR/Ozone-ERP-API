@@ -22,7 +22,7 @@ class Authentication(ResponseModel):
                 return user.get_authentication_token()
             else:
                 raise unauthorized_exception
-        except UniqueDocumentNotFoundException as e:
+        except UniqueDocumentNotFoundException:
             raise unauthorized_exception
 
 

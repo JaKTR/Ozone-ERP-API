@@ -68,9 +68,9 @@ class Secrets:
 
         except ValueError:
             return Secrets.create_application_private_key()
-        except SecretNotAvailableException as e:
+        except SecretNotAvailableException:
             return Secrets.create_application_private_key()
-        except FileNotAvailableException as e:
+        except FileNotAvailableException:
             return Secrets.create_application_private_key()
 
     @staticmethod
