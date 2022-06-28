@@ -21,7 +21,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           KEY_VAULT_NAME: ${{ secrets.KEY_VAULT_NAME }}
-        run: tox -e py
+        run: pip install tox && tox -e py
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
