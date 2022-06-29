@@ -5,9 +5,9 @@
 
 Umbrella Enterprise Resource Planning web app's backend.
 
-# Infrastructure Architecture
+# Azure Cloud Infrastructure Architectural Diagram
 
-![Umbrella Enterprise Resource Planning web app's infrastructure architectural diagram.](https://umbrellaerpdevelopment.blob.core.windows.net/public/Infrastructure%20Architectural%20Diagram.svg)
+![Azure Cloud infrastructure architectural diagram](https://umbrellaerpdevelopment.blob.core.windows.net/public/Infrastructure%20Architectural%20Diagram.svg)
 
 |Infrastructure|Cloud service
 |--|--|
