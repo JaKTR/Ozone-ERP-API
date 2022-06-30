@@ -9,13 +9,6 @@ Umbrella Enterprise Resource Planning web app's backend.
 
 ![Azure Cloud Infrastructure Architectural Diagram](https://raw.githubusercontent.com/JaKTR/Umbrella-ERP-API/main-dev/media/Infrastructure%20Architecture%20Diagram.svg?sanitize=true)
 
-|Infrastructure|Cloud service
-|--|--|
-|`Client`|Azure Static Website
-|`API`|Azure Functions
-|`Storage`|Azure Storage
-|`Database`|Azure Cosmos DB API for MongoDB
-
 # Base Endpoints
 
 |Environment|URL
