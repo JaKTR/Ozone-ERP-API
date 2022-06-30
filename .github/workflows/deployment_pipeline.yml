@@ -30,41 +30,13 @@ jobs:
           pip install -r requirements.txt --target=".python_packages/lib/site-packages"
           popd
 
-      - name: 'Creating the virtual environment'
-        shell: bash
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-          mypy --install-types --non-interactive .
-          deactivate
-
-      - name: 'Validating the code with Mypy'
-        shell: bash
-        run: |
-          source venv/bin/activate
-          mypy .
-          deactivate
-
-      - name: 'Running tests'
+      - name: 'Validating code and running tests'
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           KEY_VAULT_NAME: ${{ secrets.KEY_VAULT_NAME }}
-        shell: bash
-        run: |
-          export PYTHONDONTWRITEBYTECODE=1
-          source venv/bin/activate
-          pytest .
-          deactivate
-
-      - name: 'Cleaning up'
-        shell: bash
-        run: |
-          rm -rf venv
-          rm -rf .mypy_cache
+        run: pip install tox && tox -e py
 
       - name: 'Viewing directory tree for debug purposes'
         shell: bash
@@ -78,3 +50,8 @@ jobs:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+
+      - name: 'Upload code analysis data to Sonar Cloud'
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
