@@ -8,7 +8,6 @@ Umbrella Enterprise Resource Planning web app's backend.
 # Azure Cloud Infrastructure Architectural Diagram
 
 ![Azure Cloud Infrastructure Architectural Diagram](https://raw.githubusercontent.com/JaKTR/Umbrella-ERP-API/main-dev/media/Infrastructure%20Architecture%20Diagram.svg?sanitize=true)
-<img src="https://raw.githubusercontent.com/JaKTR/Umbrella-ERP-API/main-dev/media/Infrastructure%20Architecture%20Diagram.svg?sanitize=true">
 
 |Infrastructure|Cloud service
 |--|--|
