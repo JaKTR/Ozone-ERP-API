@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
 from fastapi import FastAPI, Request
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from app.authentication.router import router as authorization_router
@@ -12,6 +13,13 @@ fast_api_app = FastAPI()
 fast_api_app.include_router(main_router)
 fast_api_app.include_router(racs_router)
 fast_api_app.include_router(authorization_router)
+
+fast_api_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @fast_api_app.exception_handler(ClientException)
