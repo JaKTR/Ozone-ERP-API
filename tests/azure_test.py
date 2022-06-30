@@ -4,13 +4,13 @@ from cryptography.hazmat.primitives.asymmetric.rsa import (RSAPrivateKey,
                                                            RSAPublicKey)
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
-from app.azure import Secrets, Storage
-from app.constants import (APPLICATION_KEY_SECRET_NAME,
-                           AZURE_STORAGE_CONNECTION_STRING_SECRET_NAME,
-                           AZURE_STORAGE_PUBLIC_CONTAINER_NAME,
-                           PUBLIC_KEY_FILE_NAME, RSA_KEY_SIZE)
-from app.exceptions import (FileNotAvailableException,
-                            SecretNotAvailableException)
+from common.azure import Secrets, Storage
+from common.constants import (APPLICATION_KEY_SECRET_NAME,
+                              AZURE_STORAGE_CONNECTION_STRING_SECRET_NAME,
+                              AZURE_STORAGE_PUBLIC_CONTAINER_NAME,
+                              PUBLIC_KEY_FILE_NAME, RSA_KEY_SIZE)
+from common.exceptions import (FileNotAvailableException,
+                               SecretNotAvailableException)
 
 
 class TestSecrets:

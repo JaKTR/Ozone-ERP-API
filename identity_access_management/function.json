@@ -8,9 +8,11 @@
       "name": "req",
       "methods": [
         "get",
-        "post"
+        "post",
+        "put",
+        "delete"
       ],
-      "route": "{*route}"
+      "route": "iam/{*route}"
     },
     {
       "type": "http",

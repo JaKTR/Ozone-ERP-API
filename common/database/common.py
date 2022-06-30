@@ -5,7 +5,7 @@ from mongoengine import DateTimeField, Document, StringField, connect
 from pymongo import MongoClient  # type: ignore[attr-defined]
 from starlette.responses import JSONResponse
 
-from app.database import constants
+from common.database.constants import DATABASE_URI, DATABASE_NAME
 
 mongo_client: Optional[MongoClient] = None
 
@@ -14,8 +14,8 @@ def connect_to_database() -> None:
     global mongo_client
     if mongo_client is None:
         mongo_client = connect(
-            host=constants.DATABASE_URI,
-            db=constants.DATABASE_NAME,
+            host=DATABASE_URI,
+            db=DATABASE_NAME,
             uuidRepresentation="unspecified"
         )
 

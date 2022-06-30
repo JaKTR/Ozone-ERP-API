@@ -15,9 +15,10 @@ from cryptography.hazmat.primitives.serialization import (Encoding,
                                                           PrivateFormat,
                                                           PublicFormat)
 
-from app import common, constants
-from app.exceptions import (FileNotAvailableException,
-                            SecretNotAvailableException)
+import common.functions
+from common import constants
+from common.exceptions import (FileNotAvailableException,
+                               SecretNotAvailableException)
 
 
 class Secrets:
@@ -59,7 +60,8 @@ class Secrets:
         try:
 
             key_string: str = Secrets.get_secret(constants.APPLICATION_KEY_SECRET_NAME)
-            private_key: RSAPrivateKey = cast(RSAPrivateKey, serialization.load_pem_private_key(key_string.encode(), password=None))
+            private_key: RSAPrivateKey = cast(RSAPrivateKey,
+                                              serialization.load_pem_private_key(key_string.encode(), password=None))
 
             if Secrets.get_public_key_string(private_key.public_key()) != Secrets.get_public_key_string(
                     Secrets.get_application_public_key()):
@@ -77,7 +79,7 @@ class Secrets:
     @cache
     def get_application_public_key() -> RSAPublicKey:
         return cast(RSAPublicKey, serialization.load_pem_public_key(
-            common.get_data_from_url(Secrets.get_application_public_key_url())))
+            common.functions.get_data_from_url(Secrets.get_application_public_key_url())))
 
     @staticmethod
     def get_application_public_key_url() -> str:

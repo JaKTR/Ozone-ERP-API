@@ -1,25 +1,25 @@
 from typing import Optional
 
-from app.authentication.exceptions import (UnauthorizedRequestException,
-                                           UniqueDocumentNotFoundException)
-from app.authentication.models import database
-from app.common import ResponseModel
+from common.models import ResponseModel
+from identity_access_management.exceptions import (UnauthorizedRequestException,
+                                                   UniqueDocumentNotFoundException)
+from identity_access_management.models import database
 
 
-class Authentication(ResponseModel):
+class Authorization(ResponseModel):
     username: str
     password: str
 
     def save(self) -> database.User:
         return database.User.get_by_username(self.username, True).save_new_password(self.password)
 
-    def get_authentication_token(self) -> str:
+    def get_authorization_token(self) -> str:
         unauthorized_exception: UnauthorizedRequestException = UnauthorizedRequestException({"username": self.username})
 
         try:
             user: database.User = database.User.get_by_username(self.username)
             if user.is_password_correct(self.password):
-                return user.get_authentication_token()
+                return user.get_authorization_token()
             else:
                 raise unauthorized_exception
         except UniqueDocumentNotFoundException:
@@ -32,6 +32,7 @@ class User(ResponseModel):
     password: Optional[str]
 
     def save(self) -> database.User:
-        user: database.User = database.User.get_by_username(self.username) if self.password is None else Authentication(username=self.username, password=self.password).save()
+        user: database.User = database.User.get_by_username(self.username) if self.password is None else Authorization(
+            username=self.username, password=self.password).save()
         user.first_name = self.first_name
         return user.save()

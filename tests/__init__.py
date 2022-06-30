@@ -1,22 +1,17 @@
 import mongoengine
-from starlette.testclient import TestClient
 
-from app import database, fast_api_app
-from app.database import constants
-from app.database.common import mongo_client
-
-test_client: TestClient = TestClient(fast_api_app)
+from common.database import common, constants
 
 
-def setup_testing_environment() -> None:
-    if database.common.mongo_client is not None:
+def connect_to_mock_database() -> None:
+    if common.mongo_client is not None:
         mongoengine.connection.disconnect(alias="default")
 
-    database.common.mongo_client = mongoengine.connect(
+    common.mongo_client = mongoengine.connect(
         host="mongomock://localhost",
         db=constants.DATABASE_NAME,
         uuidRepresentation="unspecified"
     )
 
 
-setup_testing_environment()
+connect_to_mock_database()

@@ -2,7 +2,7 @@ from typing import Any
 
 from starlette import status
 
-from app.exceptions import ClientException
+from common.exceptions import ClientException
 
 
 class UniqueDocumentNotFoundException(ClientException):

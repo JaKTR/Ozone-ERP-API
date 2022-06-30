@@ -10,13 +10,13 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from mongoengine import BinaryField, QuerySet, StringField
 
-from app.authentication.exceptions import (SamePasswordReusedException,
-                                           UnauthorizedRequestException,
-                                           UniqueDocumentNotFoundException)
-from app.authentication.models import constants
-from app.authentication.models.constants import PBKDF2_ALGORITHM
-from app.azure import Secrets
-from app.database.common import DatabaseDocument
+from common.azure import Secrets
+from common.database.common import DatabaseDocument
+from identity_access_management.exceptions import (SamePasswordReusedException,
+                                                   UnauthorizedRequestException,
+                                                   UniqueDocumentNotFoundException)
+from identity_access_management.models import constants
+from identity_access_management.models.constants import PBKDF2_ALGORITHM
 
 
 class User(DatabaseDocument):
@@ -37,20 +37,23 @@ class User(DatabaseDocument):
         self._password_hash = User.generate_hash(password, self._password_salt)
         return self.save()
 
-    def get_authentication_token(self) -> str:
+    def get_authorization_token(self) -> str:
         data: Dict[str, Any] = {
-            "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(minutes=constants.AUTHORIZATION_TOKEN_EXPIRY_MINUTES),
+            "exp": datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(
+                minutes=constants.AUTHORIZATION_TOKEN_EXPIRY_MINUTES),
             User.__name__: self.get_json()
         }
-        return str(jwt.encode(data, Secrets.get_application_private_key(), algorithm=PBKDF2_ALGORITHM))  # type: ignore[arg-type]
+        return str(jwt.encode(data, Secrets.get_application_private_key(),  # type: ignore[arg-type]
+                              algorithm=PBKDF2_ALGORITHM))
 
     @staticmethod
-    def get_user_from_authentication_token(authentication_token: str) -> "User":
+    def get_user_from_authorization_token(authorization_token: str) -> "User":
         data: Dict[str, Any]
         try:
-            data = jwt.decode(authentication_token, Secrets.get_application_public_key(), algorithms=PBKDF2_ALGORITHM) # type: ignore[arg-type]
+            data = jwt.decode(authorization_token, Secrets.get_application_public_key(),  # type: ignore[arg-type]
+                              algorithms=[PBKDF2_ALGORITHM])
         except jwt.ExpiredSignatureError:
-            raise UnauthorizedRequestException({"authentication_token": authentication_token})
+            raise UnauthorizedRequestException({"authorization_token": authorization_token})
 
         return User(**data.get(User.__name__))
 
