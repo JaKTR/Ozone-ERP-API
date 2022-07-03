@@ -2,19 +2,17 @@ from functools import cache
 from typing import Dict, cast
 
 from azure.core.credentials import TokenCredential
-from azure.core.exceptions import ResourceNotFoundError
+from azure.core.exceptions import ResourceNotFoundError, ResourceExistsError
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from azure.storage.blob import BlobClient, BlobServiceClient, ContainerClient
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import (
-    RSAPrivateKey, RSAPrivateKeyWithSerialization, RSAPublicKey)
+    RSAPrivateKey, RSAPublicKey)
 from cryptography.hazmat.primitives.serialization import (Encoding,
-                                                          NoEncryption,
-                                                          PrivateFormat,
                                                           PublicFormat)
 
+import common.constants
 import common.functions
 from common import constants
 from common.exceptions import (FileNotAvailableException,
@@ -39,54 +37,43 @@ class Secrets:
 
     @classmethod
     def set_secret(cls, secret_name: str, secret: str) -> None:
-        cls.secret_client.set_secret(secret_name, secret)
-        Secrets.get_secret.cache_clear()
-
-    @staticmethod
-    def create_application_private_key() -> RSAPrivateKey:
-        private_key: RSAPrivateKeyWithSerialization = rsa.generate_private_key(public_exponent=65537,
-                                                                               key_size=constants.RSA_KEY_SIZE)
-        Secrets.set_secret(constants.APPLICATION_KEY_SECRET_NAME,
-                           private_key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode("UTF-8"))
-        Storage.get_url_after_uploading_to_storage(
-            private_key.public_key().public_bytes(Encoding.PEM, PublicFormat.PKCS1), constants.PUBLIC_KEY_FILE_NAME,
-            constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
-
-        Secrets.get_application_public_key.cache_clear()
-        return private_key
-
-    @staticmethod
-    def get_application_private_key() -> RSAPrivateKey:
         try:
+            cls.secret_client.set_secret(secret_name, secret)
+            cls.get_secret.cache_clear()
+        except ResourceExistsError:
+            cls.secret_client.begin_recover_deleted_secret(secret_name).wait()
+            Secrets.set_secret(secret_name, secret)
 
-            key_string: str = Secrets.get_secret(constants.APPLICATION_KEY_SECRET_NAME)
-            private_key: RSAPrivateKey = cast(RSAPrivateKey,
-                                              serialization.load_pem_private_key(key_string.encode(), password=None))
+    @classmethod
+    def delete_secret(cls, secret_name: str) -> None:
+        try:
+            cls.secret_client.begin_delete_secret(secret_name).wait()
+            cls.get_secret.cache_clear()
+        except ResourceNotFoundError:
+            raise SecretNotAvailableException(secret_name)
 
-            if Secrets.get_public_key_string(private_key.public_key()) != Secrets.get_public_key_string(
-                    Secrets.get_application_public_key()):
-                return Secrets.create_application_private_key()
-            return private_key
+    @staticmethod
+    def get_application_private_key_string() -> str:
+        return Secrets.get_secret(constants.APPLICATION_KEY_SECRET_NAME)
 
-        except ValueError:
-            return Secrets.create_application_private_key()
-        except SecretNotAvailableException:
-            return Secrets.create_application_private_key()
-        except FileNotAvailableException:
-            return Secrets.create_application_private_key()
+    @staticmethod
+    @cache
+    def get_private_key() -> RSAPrivateKey:
+        return cast(RSAPrivateKey, serialization.load_pem_private_key(Secrets.get_application_private_key_string().encode(), password=None))
 
     @staticmethod
     @cache
     def get_application_public_key() -> RSAPublicKey:
-        return cast(RSAPublicKey, serialization.load_pem_public_key(
-            common.functions.get_data_from_url(Secrets.get_application_public_key_url())))
+        return cast(RSAPublicKey, serialization.load_pem_public_key(common.functions.get_data_from_url(Secrets.get_application_public_key_url())))
 
     @staticmethod
     def get_application_public_key_url() -> str:
         return Storage.get_url_of_file(constants.PUBLIC_KEY_FILE_NAME, constants.AZURE_STORAGE_PUBLIC_CONTAINER_NAME)
 
     @staticmethod
-    def get_public_key_string(public_key: RSAPublicKey) -> str:
+    def get_public_key_string(public_key: RSAPublicKey = None) -> str:
+        if public_key is None:
+            public_key = Secrets.get_application_public_key()
         return public_key.public_bytes(Encoding.PEM, PublicFormat.PKCS1).decode("UTF-8")
 
 
@@ -97,8 +84,7 @@ class Storage:
     @classmethod
     def get_url_after_uploading_to_storage(cls, data: bytes, file_name: str, container_name: str) -> str:
         container_client: ContainerClient = cls.bob_service_client.get_container_client(container_name)
-        blob_client: BlobClient = container_client.upload_blob(name=file_name, data=data,
-                                                               overwrite=True)  # type: ignore[type-var]
+        blob_client: BlobClient = container_client.upload_blob(name=file_name, data=data, overwrite=True)   # type: ignore[type-var]
         return str(blob_client.url)
 
     @classmethod

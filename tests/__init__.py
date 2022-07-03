@@ -1,6 +1,7 @@
 import mongoengine
 
 from common.database import common, constants
+from super_admin.models import Initialization
 
 
 def connect_to_mock_database() -> None:
@@ -15,3 +16,4 @@ def connect_to_mock_database() -> None:
 
 
 connect_to_mock_database()
+Initialization().initialize_role()

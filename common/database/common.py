@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, cast
 
+from bson import DBRef  # type: ignore[attr-defined]
 from mongoengine import DateTimeField, Document, StringField, connect
 from pymongo import MongoClient  # type: ignore[attr-defined]
 from starlette.responses import JSONResponse
@@ -33,14 +34,21 @@ class DatabaseDocument(Document):  # type: ignore[misc]
     def is_saved(self) -> bool:
         return self._modified_time is not None
 
-    def get_json(self, exclude_fields: List[str] = None) -> Dict[str, Any]:
+    def get_json(self, exclude_fields: List[str] = None, is_full_json: bool = False) -> Dict[str, Any]:
         return_dict: Dict[str, Any] = self._data.copy()
 
-        for key in return_dict.copy().keys():
+        for key, value in return_dict.copy().items():
             if key.startswith("_") or (exclude_fields is not None and key in exclude_fields):
                 return_dict.pop(key)
-            elif isinstance(return_dict[key], datetime):
+            elif isinstance(value, datetime):
                 return_dict[key] = cast(datetime, return_dict[key]).isoformat()
+            elif isinstance(value, DBRef):
+                return_dict[key] = value.id
+            elif isinstance(value, DatabaseDocument):
+                if is_full_json:
+                    return_dict[key] = value.get_json()
+                else:
+                    return_dict[key] = value.id
 
         return return_dict
 
