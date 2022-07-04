@@ -1,6 +1,6 @@
 import os
 
-APP_NAME: str = "Umbrella"
+APP_NAME: str = "Ozone"
 ENVIRONMENT: str = "Development"
 
 AZURE_KEY_VAULT_NAME: str = os.getenv("KEY_VAULT_NAME")

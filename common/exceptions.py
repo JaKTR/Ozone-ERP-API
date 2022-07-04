@@ -3,17 +3,17 @@ from typing import Any
 from starlette import status
 
 
-class UmbrellaException(Exception):
+class ManagedException(Exception):
     error_message: str
     parameters: Any
 
     def __init__(self, error_message: str, parameters: Any = None):
-        super(UmbrellaException, self).__init__()
+        super(ManagedException, self).__init__()
         self.error_message = error_message
         self.parameters = parameters
 
 
-class ClientException(UmbrellaException):
+class ClientException(ManagedException):
     return_code: int = status.HTTP_400_BAD_REQUEST
 
     def __init__(self, error_message: str, parameters: Any = None, custom_return_code: int = None):
@@ -21,7 +21,7 @@ class ClientException(UmbrellaException):
         self.return_code = custom_return_code if custom_return_code is not None else self.return_code
 
 
-class ServerException(UmbrellaException):
+class ServerException(ManagedException):
     pass
 
 

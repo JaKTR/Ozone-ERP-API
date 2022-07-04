@@ -27,13 +27,13 @@ repos:
   - repo: local
     hooks:
       - id: mypy
-          name: mypy
-          entry: mypy --install-types --non-interactive .
-          language: system
-          pass_filenames: false
-          always_run: true
-          types: [ python ]
-          stages: [ commit, push ]
+        name: mypy
+        entry: mypy --install-types --non-interactive .
+        language: system
+        pass_filenames: false
+        always_run: true
+        types: [ python ]
+        stages: [ commit, push ]
 
       - id: pytest
         name: pytest

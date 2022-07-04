@@ -1,3 +1,4 @@
+import secrets
 from typing import List
 
 from cryptography.hazmat.primitives._serialization import Encoding, PrivateFormat, NoEncryption, PublicFormat
@@ -10,7 +11,7 @@ from common.constants import APPLICATION_KEY_SECRET_NAME, RSA_KEY_SIZE, PUBLIC_K
 from common.exceptions import SecretNotAvailableException, FileNotAvailableException
 from common.models import ResponseModel
 from identity_access_management.models import database
-from identity_access_management.models.constants import SUPER_ADMIN_ROLE
+from identity_access_management.models.constants import SUPER_ADMIN_ROLE, PEPPER_KEY, PEPPER_BYTES
 
 
 class Initialization(ResponseModel):
@@ -21,6 +22,7 @@ class Initialization(ResponseModel):
         initialization: Initialization = Initialization()
 
         initialization.initialize_role()
+        initialization.initialize_pepper()
         initialization.initialize_private_key()
         initialization.initialize_public_key()
 
@@ -30,6 +32,14 @@ class Initialization(ResponseModel):
         if len(database.Role.objects(role=SUPER_ADMIN_ROLE)) == 0:
             database.Role(role=SUPER_ADMIN_ROLE).save()
             self.initialized_tasks.append("Role")
+
+    def initialize_pepper(self) -> None:
+        try:
+            Secrets.get_secret(PEPPER_KEY)
+        except SecretNotAvailableException:
+            new_pepper: str = secrets.token_hex(nbytes=PEPPER_BYTES)
+            Secrets.set_secret(PEPPER_KEY, new_pepper)
+            self.initialized_tasks.append("Pepper")
 
     def initialize_private_key(self) -> None:
         def create_private_key() -> None:
