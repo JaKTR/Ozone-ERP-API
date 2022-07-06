@@ -1,7 +1,7 @@
 from typing import Dict, Any, cast, List
 
-from fastapi import Depends, APIRouter
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, APIRouter, Form
+from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import JSONResponse
 
 from identity_access_management import constants
@@ -23,11 +23,11 @@ def authorize(user: User, authorized_roles: List[str] = None) -> None:
 
 
 @iam_app_router.post(f"{constants.AUTHENTICATE_URL}")
-async def authorization(form_data: OAuth2PasswordRequestForm = Depends()) -> Dict[str, str]:
+async def authorization(username: str = Form(), password: str = Form()) -> Dict[str, str]:
     """
     Authorization the user; returns the JWT Authorization Token with the user's data embedded in the data
     """
-    authorization_token: str = Authorization(username=form_data.username, password=form_data.password).get_authorization_token()
+    authorization_token: str = Authorization(username=username, password=password).get_authorization_token()
     authorization_token_data: Dict[str, Any] = cast(Dict[str, Any], database.User.get_data_from_authorization_token(authorization_token))
     return {"access_token": authorization_token, "token_type": "bearer", "expiry": authorization_token_data["exp"]}
 

@@ -24,7 +24,7 @@ class TestAuthorization:
         response: Response = iam_test_client.post(
             f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.AUTHENTICATE_URL}",
             data={"username": saved_user_data.username,
-                  "password": new_user_data.password})
+                    "password": new_user_data.password})
 
         decoded_data: Dict[str, Any] = jwt.decode(response.json()["access_token"],
                                                   Secrets.get_application_public_key(),  # type: ignore[arg-type]

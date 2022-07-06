@@ -43,7 +43,7 @@ async def main(req: func.HttpRequest, context: func.Context) -> func.HttpRespons
     return func.AsgiMiddleware(racs_app).handle(req, context)  # type: ignore[no-any-return,no-untyped-call]
 
 
-if __name__ == "__main__":
+def run() -> None:
     uvicorn.run(
         "racs:racs_app",
         host="127.0.0.1",
@@ -51,3 +51,7 @@ if __name__ == "__main__":
         log_level="debug",
         reload=True,
     )
+
+
+if __name__ == "__main__":
+    run()

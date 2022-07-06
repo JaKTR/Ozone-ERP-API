@@ -1,6 +1,6 @@
-from cryptography.hazmat.primitives._serialization import Encoding, PublicFormat
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPrivateKeyWithSerialization
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from requests import Response
 
 from common.azure import Secrets, Storage
