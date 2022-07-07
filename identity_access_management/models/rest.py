@@ -43,5 +43,5 @@ class User(ResponseModel):
 class Role(ResponseModel):
     role: str
 
-    def save(self) -> database.Role:
+    def save(self) -> "Role":
         return Role(**database.Role(**self.get_dict()).save().get_json())
