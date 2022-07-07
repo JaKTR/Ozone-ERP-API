@@ -38,3 +38,10 @@ class User(ResponseModel):
         user.first_name = self.first_name
         user.role = database.Role.get_by_role(self.role)
         return User(**user.save().get_json())
+
+
+class Role(ResponseModel):
+    role: str
+
+    def save(self) -> database.Role:
+        return Role(**database.Role(**self.get_dict()).save().get_json())

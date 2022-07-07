@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from identity_access_management import constants
 from identity_access_management.exceptions import UnauthorizedRequestException
 from identity_access_management.models import database
-from identity_access_management.models.rest import Authorization, User
+from identity_access_management.models.rest import Authorization, User, Role
 
 iam_app_router: APIRouter = APIRouter(prefix=constants.BASE_URL)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{constants.BASE_URL}{constants.AUTHENTICATE_URL}")
@@ -18,7 +18,7 @@ async def get_logged_in_user_data(token: str = Depends(oauth2_scheme)) -> User:
 
 
 def authorize(user: User, authorized_roles: List[str] = None) -> None:
-    if not database.Role.is_authorized(user.role, authorized_roles if authorized_roles is not None else []):
+    if not database.Role.is_authorized(user.role, authorized_roles):
         raise UnauthorizedRequestException("User does not have the necessary privileges", {"authorized_roles": authorized_roles, "user_role": user.role})
 
 
@@ -37,7 +37,6 @@ async def update_user_data(updated_user: User, logged_in_user: User = Depends(ge
     """
     Update the user's data (including their password)
     """
-    authorize(logged_in_user)
     if updated_user.username == logged_in_user.username:
         return updated_user.save()
     else:
@@ -60,3 +59,12 @@ async def get_user_data(logged_in_user: User = Depends(get_logged_in_user_data))
     """
     authorize(logged_in_user)
     return database.User.get_by_username(logged_in_user.username).get_json_response()
+
+
+@iam_app_router.get(f"{constants.ROLE_URL}")
+async def get_role_data(role: Role, logged_in_user: User = Depends(get_logged_in_user_data)) -> JSONResponse:
+    """
+    Get the role data
+    """
+    authorize(logged_in_user)
+    return database.Role.get_by_role(role.role).get_json_response()

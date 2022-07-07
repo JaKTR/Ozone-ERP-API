@@ -22,34 +22,12 @@ class Initialization(ResponseModel):
         initialization: Initialization = Initialization()
 
         initialization.initialize_role()
-        initialization.initialized_super_admins()
         initialization.initialize_pepper()
+        initialization.initialized_super_admins()
         initialization.initialize_private_key()
         initialization.initialize_public_key()
 
         return initialization
-
-    def initialize_role(self) -> None:
-        if len(database.Role.objects(role=SUPER_ADMIN_ROLE)) == 0:
-            database.Role(role=SUPER_ADMIN_ROLE).save()
-            self.initialized_tasks.append("Role")
-
-    def initialized_super_admins(self) -> None:
-        super_admin_1: database.User = database.User.get_by_username("penta", True)
-        if not super_admin_1.is_saved():
-            super_admin_1.first_name = "Jason"
-            super_admin_1.role = database.Role.get_by_role(SUPER_ADMIN_ROLE)
-            super_admin_1_password: str = secrets.token_hex(64)
-            super_admin_1.save_new_password(super_admin_1_password)
-            self.initialized_tasks.append({super_admin_1.username: super_admin_1_password})
-
-        super_admin_2: database.User = database.User.get_by_username("kavindu", True)
-        if not super_admin_2.is_saved():
-            super_admin_2.first_name = "Kavindu"
-            super_admin_2.role = database.Role.get_by_role(SUPER_ADMIN_ROLE)
-            super_admin_2_password: str = secrets.token_hex(64)
-            super_admin_2.save_new_password(super_admin_2_password)
-            self.initialized_tasks.append({super_admin_2.username: super_admin_2_password})
 
     def initialize_pepper(self) -> None:
         try:
@@ -58,6 +36,28 @@ class Initialization(ResponseModel):
             new_pepper: str = secrets.token_hex(nbytes=PEPPER_BYTES)
             Secrets.set_secret(PEPPER_KEY, new_pepper)
             self.initialized_tasks.append("Pepper")
+
+    def initialize_role(self) -> None:
+        if len(database.Role.objects(role=SUPER_ADMIN_ROLE)) == 0:
+            database.Role(role=SUPER_ADMIN_ROLE).save()
+            self.initialized_tasks.append("Role")
+
+    def initialized_super_admins(self) -> None:
+        super_admin_1: database.User = database.User.get_by_username("penta", True)
+        if not super_admin_1.is_saved:
+            super_admin_1.first_name = "Jason"
+            super_admin_1.role = database.Role.get_by_role(SUPER_ADMIN_ROLE)
+            super_admin_1_password: str = secrets.token_hex(64)
+            super_admin_1.save_new_password(super_admin_1_password)
+            self.initialized_tasks.append({super_admin_1.username: super_admin_1_password})
+
+        super_admin_2: database.User = database.User.get_by_username("kavindu", True)
+        if not super_admin_2.is_saved:
+            super_admin_2.first_name = "Kavindu"
+            super_admin_2.role = database.Role.get_by_role(SUPER_ADMIN_ROLE)
+            super_admin_2_password: str = secrets.token_hex(64)
+            super_admin_2.save_new_password(super_admin_2_password)
+            self.initialized_tasks.append({super_admin_2.username: super_admin_2_password})
 
     def initialize_private_key(self) -> None:
         def create_private_key() -> None:
@@ -93,7 +93,5 @@ class Initialization(ResponseModel):
         except ValueError:
             set_public_key()
             return
-        except SecretNotAvailableException:
-            set_public_key()
         except FileNotAvailableException:
             set_public_key()

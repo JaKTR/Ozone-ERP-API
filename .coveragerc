@@ -1,0 +1,6 @@
+[run]
+omit =
+    tests/*
+    super_admin/__init__.py
+    racs/__init__.py
+    identity_access_management/__init__.py

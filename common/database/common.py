@@ -13,8 +13,7 @@ mongo_client: Optional[MongoClient] = None
 
 def connect_to_database() -> None:
     global mongo_client
-    if mongo_client is None:
-        mongo_client = connect(
+    mongo_client = connect(
             host=DATABASE_URI,
             db=DATABASE_NAME,
             uuidRepresentation="unspecified"
@@ -31,6 +30,7 @@ class DatabaseDocument(Document):  # type: ignore[misc]
         self._modified_time = datetime.utcnow()
         return super().save()  # type: ignore[no-any-return]
 
+    @property
     def is_saved(self) -> bool:
         return self._modified_time is not None
 

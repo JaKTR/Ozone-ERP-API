@@ -5,8 +5,6 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, HTMLResponse
 
 from common.exceptions import ClientException
-from identity_access_management.models import constants
-from identity_access_management.models.database import Role
 
 
 async def show_docs() -> HTMLResponse:
@@ -24,6 +22,3 @@ async def client_exception_handler(request: Request, exception: ClientException)
         content=response_content
     )
 
-
-async def initialize_data() -> None:
-    Role(role_id=constants.SUPER_ADMIN_ROLE).save()

@@ -12,7 +12,6 @@ from mongoengine import BinaryField, StringField, ReferenceField, DoesNotExist
 
 from common.azure import Secrets
 from common.database.common import DatabaseDocument
-from common.exceptions import SecretNotAvailableException
 from identity_access_management.exceptions import (SamePasswordReusedException,
                                                    UnauthorizedRequestException,
                                                    UniqueDocumentNotFoundException)
@@ -51,7 +50,7 @@ class User(DatabaseDocument):
     _password_salt: bytes = BinaryField()
 
     def save_new_password(self, password: str) -> "User":
-        if self.is_saved() and self.is_password_correct(password):
+        if self.is_saved and self.is_password_correct(password):
             raise SamePasswordReusedException("Same password is reused")
 
         self._password_salt = secrets.token_bytes(nbytes=constants.SALT_BYTES)
@@ -116,9 +115,4 @@ class User(DatabaseDocument):
 
     @staticmethod
     def get_password_pepper() -> str:
-        try:
-            return Secrets.get_secret(constants.PEPPER_KEY)
-        except SecretNotAvailableException:
-            new_pepper: str = secrets.token_hex(nbytes=constants.PEPPER_BYTES)
-            Secrets.set_secret(constants.PEPPER_KEY, new_pepper)
-            return new_pepper
+        return Secrets.get_secret(constants.PEPPER_KEY)

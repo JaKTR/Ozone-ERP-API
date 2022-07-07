@@ -30,6 +30,25 @@ class TestSecrets:
     def test_get_application_public_key(self) -> None:
         assert isinstance(Secrets.get_application_public_key(), RSAPublicKey)
 
+    def test_delete_secret(self) -> None:
+        Secrets.delete_secret("TEST-SECRET")
+        try:
+            Secrets.get_secret("TEST-SECRET")
+        except SecretNotAvailableException:
+            pass
+
+    def test_delete_unavailable_secret(self) -> None:
+        try:
+            Secrets.delete_secret("Hello")
+        except SecretNotAvailableException:
+            pass
+
+    def test_get_empty_secret(self) -> None:
+        Secrets.set_secret("TEST-SECRET", "")
+        try:
+            Secrets.get_secret("TEST-SECRET")
+        except SecretNotAvailableException:
+            pass
 
 class TestStorage:
     name_of_test_file: str = "test_file.txt"
