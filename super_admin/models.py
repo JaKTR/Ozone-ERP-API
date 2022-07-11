@@ -1,17 +1,18 @@
-import secrets
 from typing import List, Union, Dict
 
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey, RSAPrivateKeyWithSerialization
 from cryptography.hazmat.primitives.serialization import Encoding, PrivateFormat, NoEncryption, PublicFormat
 
+from common import functions
 from common.azure import Secrets, Storage
 from common.constants import APPLICATION_KEY_SECRET_NAME, RSA_KEY_SIZE, PUBLIC_KEY_FILE_NAME, \
     AZURE_STORAGE_PUBLIC_CONTAINER_NAME
 from common.exceptions import SecretNotAvailableException, FileNotAvailableException
 from common.models import ResponseModel
+from identity_access_management.exceptions import UniqueDocumentNotFoundException
 from identity_access_management.models import database
-from identity_access_management.models.constants import SUPER_ADMIN_ROLE, PEPPER_KEY, PEPPER_BYTES
+from identity_access_management.models.constants import SUPER_ADMIN_ROLE, PEPPER_KEY, SECURE_STRING_LENGTH
 
 
 class Initialization(ResponseModel):
@@ -33,30 +34,46 @@ class Initialization(ResponseModel):
         try:
             Secrets.get_secret(PEPPER_KEY)
         except SecretNotAvailableException:
-            new_pepper: str = secrets.token_hex(nbytes=PEPPER_BYTES)
+            new_pepper: str = functions.get_secure_random_alphanumeric_string(SECURE_STRING_LENGTH)
             Secrets.set_secret(PEPPER_KEY, new_pepper)
             self.initialized_tasks.append("Pepper")
 
     def initialize_role(self) -> None:
         if len(database.Role.objects(role=SUPER_ADMIN_ROLE)) == 0:
-            database.Role(role=SUPER_ADMIN_ROLE).save()
+            database.Role(role=SUPER_ADMIN_ROLE, name=SUPER_ADMIN_ROLE.replace("_", " ").title()).save()
             self.initialized_tasks.append("Role")
 
     def initialized_super_admins(self) -> None:
-        super_admin_1: database.User = database.User.get_by_username("penta", True)
-        if not super_admin_1.is_saved:
-            super_admin_1.first_name = "Jason"
-            super_admin_1.role = database.Role.get_by_role(SUPER_ADMIN_ROLE)
-            super_admin_1_password: str = secrets.token_hex(64)
-            super_admin_1.save_new_password(super_admin_1_password)
+        super_admin_role: database.Role = database.Role.get_by_role(SUPER_ADMIN_ROLE)
+
+        try:
+            database.User.get_by_username("penta")
+        except UniqueDocumentNotFoundException:
+            super_admin_1_password: str = functions.get_secure_random_alphanumeric_string(SECURE_STRING_LENGTH)
+            super_admin_1: database.User = database.User(
+                username="penta",
+                first_name="Jason",
+                last_name="Smit",
+                email="jason.michael.smit@gmail.com",
+                organization_id="1",
+                mobile=1,
+                role=super_admin_role
+            ).save_new_password(super_admin_1_password)
             self.initialized_tasks.append({super_admin_1.username: super_admin_1_password})
 
-        super_admin_2: database.User = database.User.get_by_username("kavindu", True)
-        if not super_admin_2.is_saved:
-            super_admin_2.first_name = "Kavindu"
-            super_admin_2.role = database.Role.get_by_role(SUPER_ADMIN_ROLE)
-            super_admin_2_password: str = secrets.token_hex(64)
-            super_admin_2.save_new_password(super_admin_2_password)
+        try:
+            database.User.get_by_username("kavindu")
+        except UniqueDocumentNotFoundException:
+            super_admin_2_password: str = functions.get_secure_random_alphanumeric_string(SECURE_STRING_LENGTH)
+            super_admin_2: database.User = database.User(
+                username="kavindu",
+                first_name="Kavindu",
+                last_name="Athaudha",
+                email="kavindu@outlook.com",
+                organization_id="2",
+                mobile=2,
+                role=super_admin_role
+            ).save_new_password(super_admin_2_password)
             self.initialized_tasks.append({super_admin_2.username: super_admin_2_password})
 
     def initialize_private_key(self) -> None:

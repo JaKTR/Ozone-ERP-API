@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, cast
 
@@ -34,16 +35,18 @@ class DatabaseDocument(Document):  # type: ignore[misc]
     def is_saved(self) -> bool:
         return self._modified_time is not None
 
-    def get_json(self, exclude_fields: List[str] = None, is_full_json: bool = False) -> Dict[str, Any]:
+    def get_json(self, exclude_fields: List[str] = None, is_full_json: bool = False, include_hidden_fields: bool = False) -> Dict[str, Any]:
         return_dict: Dict[str, Any] = self._data.copy()
 
         for key, value in return_dict.copy().items():
-            if key.startswith("_") or (exclude_fields is not None and key in exclude_fields):
+            if not include_hidden_fields and key.startswith("_") or (exclude_fields is not None and key in exclude_fields):
                 return_dict.pop(key)
             elif isinstance(value, datetime):
                 return_dict[key] = cast(datetime, return_dict[key]).isoformat()
             elif isinstance(value, DBRef):
                 return_dict[key] = value.id
+            elif isinstance(value, bytes):
+                return_dict[key] = base64.b64encode(value).decode("UTF-8")
             elif isinstance(value, DatabaseDocument):
                 if is_full_json:
                     return_dict[key] = value.get_json()

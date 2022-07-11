@@ -8,19 +8,21 @@ import jwt
 from cryptography.exceptions import InvalidKey
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from mongoengine import BinaryField, StringField, ReferenceField, DoesNotExist
+from mongoengine import BinaryField, StringField, ReferenceField, DoesNotExist, EmailField, IntField
 
+from common import functions
 from common.azure import Secrets
 from common.database.common import DatabaseDocument
 from identity_access_management.exceptions import (SamePasswordReusedException,
                                                    UnauthorizedRequestException,
                                                    UniqueDocumentNotFoundException)
 from identity_access_management.models import constants
-from identity_access_management.models.constants import PBKDF2_ALGORITHM, SUPER_ADMIN_ROLE
+from identity_access_management.models.constants import PBKDF2_ALGORITHM, SUPER_ADMIN_ROLE, SECURE_STRING_LENGTH
 
 
 class Role(DatabaseDocument):
     role: str = StringField(primary_key=True)
+    name: str = StringField(required=True)
 
     @staticmethod
     def get_by_role(role: str, is_return_new_document: bool = False) -> "Role":
@@ -44,10 +46,24 @@ class Role(DatabaseDocument):
 
 class User(DatabaseDocument):
     username: str = StringField(primary_key=True)
-    first_name: str = StringField()
+    first_name: str = StringField(required=True)
+    last_name: str = StringField(required=True)
+    email: str = EmailField(required=True)
+    organization_id: str = StringField(required=True)
+    mobile: int = IntField(required=True)
     role: str = ReferenceField(Role)
-    _password_hash: bytes = BinaryField()
-    _password_salt: bytes = BinaryField()
+    _password_hash: bytes = BinaryField(required=True)
+    _password_salt: bytes = BinaryField(required=True)
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        if "_password_hash" not in kwargs and "_password_salt" not in kwargs:
+            kwargs["_password_salt"] = secrets.token_bytes(nbytes=constants.SALT_BYTES)
+            kwargs["_password_hash"] = User.generate_hash(functions.get_secure_random_alphanumeric_string(SECURE_STRING_LENGTH), cast(bytes, kwargs["_password_salt"]))
+        super().__init__(*args, **kwargs)
+
+    @property
+    def full_name(self) -> str:
+        return self.first_name + self.last_name
 
     def save_new_password(self, password: str) -> "User":
         if self.is_saved and self.is_password_correct(password):
@@ -80,14 +96,11 @@ class User(DatabaseDocument):
             raise UnauthorizedRequestException("Token expired", {"authorization_token": authorization_token})
 
     @staticmethod
-    def get_by_username(username: str, is_return_new_document: bool = False) -> "User":
+    def get_by_username(username: str) -> "User":
         try:
             return cast(User, User.objects.get(username=username))
         except DoesNotExist:
-            if is_return_new_document:
-                return User(username=username)
-            else:
-                raise UniqueDocumentNotFoundException(f"Username not found", username)
+            raise UniqueDocumentNotFoundException(f"Username not found", username)
 
     def is_password_correct(self, password: str) -> bool:
         return self.verify_hash(password, self._password_hash, self._password_salt)

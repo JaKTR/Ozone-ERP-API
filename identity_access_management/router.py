@@ -32,10 +32,20 @@ async def authorization(username: str = Form(), password: str = Form()) -> Dict[
     return {"access_token": authorization_token, "token_type": "bearer", "expiry": authorization_token_data["exp"]}
 
 
+@iam_app_router.patch(f"{constants.AUTHENTICATE_URL}")
+async def update_user_password(authorization: Authorization, logged_in_user: User = Depends(get_logged_in_user_data)) -> None:
+    """
+    Updates the user's existing password
+    """
+    if authorization.username != logged_in_user.username:
+        raise UnauthorizedRequestException("Other users password cannot be changed", {"username_in_payload": authorization.username, "current_username": logged_in_user.username})
+    authorization.save()
+
+
 @iam_app_router.post(f"{constants.USER_URL}")
 async def update_user_data(updated_user: User, logged_in_user: User = Depends(get_logged_in_user_data)) -> User:
     """
-    Update the user's data (including their password)
+    Update the user's data
     """
     if updated_user.username == logged_in_user.username:
         return updated_user.save()
