@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from common.models import ResponseModel
 from identity_access_management.exceptions import (UnauthorizedRequestException,
                                                    UniqueDocumentNotFoundException)
@@ -37,8 +39,11 @@ class User(ResponseModel):
         updated_user: database.User
 
         try:
+            user_dict: Dict[str, Any] = self.get_dict()
+            user_dict["role"] = database.Role.get_by_role(self.role)
+
             updated_user = database.User.get_by_username(self.username)
-            updated_user.modify(self.get_dict())
+            updated_user.modify(**user_dict)
         except UniqueDocumentNotFoundException:
             updated_user = database.User(**self.get_dict()).save()
 

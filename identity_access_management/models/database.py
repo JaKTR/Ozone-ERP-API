@@ -25,14 +25,11 @@ class Role(DatabaseDocument):
     name: str = StringField(required=True)
 
     @staticmethod
-    def get_by_role(role: str, is_return_new_document: bool = False) -> "Role":
+    def get_by_role(role: str) -> "Role":
         try:
             return cast(Role, Role.objects.get(role=role))
         except DoesNotExist:
-            if is_return_new_document:
-                return Role(role=role)
-            else:
-                raise UniqueDocumentNotFoundException(f"Role not found", role)
+            raise UniqueDocumentNotFoundException(f"Role not found", role)
 
     @staticmethod
     def is_authorized(role: str, authorized_roles: List[str] = None) -> bool:
@@ -60,10 +57,6 @@ class User(DatabaseDocument):
             kwargs["_password_salt"] = secrets.token_bytes(nbytes=constants.SALT_BYTES)
             kwargs["_password_hash"] = User.generate_hash(functions.get_secure_random_alphanumeric_string(SECURE_STRING_LENGTH), cast(bytes, kwargs["_password_salt"]))
         super().__init__(*args, **kwargs)
-
-    @property
-    def full_name(self) -> str:
-        return self.first_name + self.last_name
 
     def save_new_password(self, password: str) -> "User":
         if self.is_saved and self.is_password_correct(password):
