@@ -1,4 +1,5 @@
 BASE_URL: str = "/iam"
 AUTHENTICATE_URL: str = "/authorize"
 USER_URL: str = "/user"
+USER_ALL_URL: str = "/all"
 ROLE_URL: str = "/role"

@@ -9,7 +9,7 @@ from starlette import status
 import identity_access_management
 from common.azure import Secrets
 from identity_access_management.models import rest, database
-from identity_access_management.models.constants import PBKDF2_ALGORITHM, SUPER_ADMIN_ROLE
+from identity_access_management.models.constants import PBKDF2_ALGORITHM
 from tests.identity_access_management import iam_test_client
 
 new_user_password: str = "SomeRandomPassword"
@@ -20,12 +20,14 @@ new_user_data: rest.User = rest.User(
     email="john_doe@gmail.com",
     organization_id="abcd",
     mobile=51321423,
-    role=SUPER_ADMIN_ROLE)
+    role=database.Role(role="test_role", name="Test Role").save().role)
 
 
 @pytest.fixture
 def reset_data() -> None:
     database.User.drop_collection()
+    database.User.get_by_username.cache_clear()
+    database.User.get_all.cache_clear()
 
 
 @pytest.fixture
@@ -84,6 +86,19 @@ class TestUser:
             f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.USER_URL}",
             json=saved_user_data.get_dict(), headers=request_header)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    def test_get_all_user_data(self, saved_user_data: rest.User, super_user_request_header: Dict[str, str]) -> None:
+        another_user_data: rest.User = saved_user_data.copy()
+        another_user_data.username = another_user_data.username = "a"
+        another_user_data.save()
+
+        response: Response = iam_test_client.get(
+            f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.USER_URL}{identity_access_management.constants.USER_ALL_URL}",
+            json=saved_user_data.get_dict(), headers=super_user_request_header)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(list(filter(lambda data: data["username"] == saved_user_data.username, response.json()))) == 1
+        assert len(list(filter(lambda data: data["username"] == another_user_data.username, response.json()))) == 1
 
 
 class TestAuthorization:
@@ -161,12 +176,13 @@ class TestRole:
     def test_get_role(self, super_user_request_header: Dict[str, str], new_role_data: rest.Role) -> None:
         response: Response = iam_test_client.get(
             f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.ROLE_URL}",
-            json=new_role_data.get_dict(), headers=super_user_request_header)
+            params={"role": new_role_data.role}, headers=super_user_request_header)
         assert response.status_code == status.HTTP_200_OK
+        assert response.json() == new_role_data.get_dict()
 
     def test_get_unavailable_role(self, super_user_request_header: Dict[str, str], new_role_data: rest.Role) -> None:
         new_role_data.role = new_role_data.role + "a"
         response: Response = iam_test_client.get(
             f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.ROLE_URL}",
-            json=new_role_data.get_dict(), headers=super_user_request_header)
+            params={"role": new_role_data.role}, headers=super_user_request_header)
         assert response.status_code == status.HTTP_400_BAD_REQUEST

@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import datetime
 import secrets
-from typing import Any, Dict, cast, List
+from functools import cache
+from typing import Any, Dict, cast, List, Tuple
 
 import jwt
 from cryptography.exceptions import InvalidKey
@@ -25,6 +26,7 @@ class Role(DatabaseDocument):
     name: str = StringField(required=True)
 
     @staticmethod
+    @cache
     def get_by_role(role: str) -> "Role":
         try:
             return cast(Role, Role.objects.get(role=role))
@@ -58,6 +60,11 @@ class User(DatabaseDocument):
             kwargs["_password_hash"] = User.generate_hash(functions.get_secure_random_alphanumeric_string(SECURE_STRING_LENGTH), cast(bytes, kwargs["_password_salt"]))
         super().__init__(*args, **kwargs)
 
+    def save(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> "User":
+        User.get_by_username.cache_clear()
+        User.get_by_username.cache_clear()
+        return cast(User, super().save(*args, **kwargs))
+
     def save_new_password(self, password: str) -> "User":
         if self.is_saved and self.is_password_correct(password):
             raise SamePasswordReusedException("Same password is reused")
@@ -89,6 +96,7 @@ class User(DatabaseDocument):
             raise UnauthorizedRequestException("Token expired", {"authorization_token": authorization_token})
 
     @staticmethod
+    @cache
     def get_by_username(username: str) -> "User":
         try:
             return cast(User, User.objects.get(username=username))
@@ -122,3 +130,11 @@ class User(DatabaseDocument):
     @staticmethod
     def get_password_pepper() -> str:
         return Secrets.get_secret(constants.PEPPER_KEY)
+
+    @staticmethod
+    @cache
+    def get_all() -> List["User"]:
+        all_user_list: List[User] = []
+        for user in User.objects():
+            all_user_list.append(user)
+        return all_user_list

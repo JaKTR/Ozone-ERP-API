@@ -1,12 +1,12 @@
-from typing import Dict, Any, cast, List
+from typing import Dict, Any, cast, List, Optional
 
 from fastapi import Depends, APIRouter, Form
 from fastapi.security import OAuth2PasswordBearer
-from starlette.responses import JSONResponse
 
 from identity_access_management import constants
 from identity_access_management.exceptions import UnauthorizedRequestException
 from identity_access_management.models import database
+from identity_access_management.models.constants import SUPER_ADMIN_ROLE
 from identity_access_management.models.rest import Authorization, User, Role
 
 iam_app_router: APIRouter = APIRouter(prefix=constants.BASE_URL)
@@ -37,7 +37,7 @@ async def update_user_password(authorization: Authorization, logged_in_user: Use
     """
     Updates the user's existing password
     """
-    if authorization.username != logged_in_user.username:
+    if logged_in_user.role != SUPER_ADMIN_ROLE and authorization.username != logged_in_user.username:
         raise UnauthorizedRequestException("Other users password cannot be changed", {"username_in_payload": authorization.username, "current_username": logged_in_user.username})
     authorization.save()
 
@@ -63,18 +63,29 @@ async def create_new_user(new_user: User, logged_in_user: User = Depends(get_log
 
 
 @iam_app_router.get(f"{constants.USER_URL}")
-async def get_user_data(logged_in_user: User = Depends(get_logged_in_user_data)) -> JSONResponse:
+async def get_user_data(logged_in_user: User = Depends(get_logged_in_user_data)) -> User:
     """
     Get the current user's data
     """
-    authorize(logged_in_user)
-    return database.User.get_by_username(logged_in_user.username).get_json_response()
+    return User.get_by_username(logged_in_user.username)
 
 
 @iam_app_router.get(f"{constants.ROLE_URL}")
-async def get_role_data(role: Role, logged_in_user: User = Depends(get_logged_in_user_data)) -> JSONResponse:
+async def get_role_data(role: str, logged_in_user: User = Depends(get_logged_in_user_data)) -> Role:
     """
     Get the role data
     """
     authorize(logged_in_user)
-    return database.Role.get_by_role(role.role).get_json_response()
+    return Role.get_by_role(role)
+
+
+# TODO: Filter all per organization
+@iam_app_router.get(f"{constants.USER_URL}{constants.USER_ALL_URL}")
+async def get_all_user_data(logged_in_user: User = Depends(get_logged_in_user_data)) -> Optional[List[User]]:
+    """
+    Get the current user's data
+    """
+    authorize(logged_in_user)
+    if logged_in_user.role == SUPER_ADMIN_ROLE:
+        return User.get_all()
+    return None
