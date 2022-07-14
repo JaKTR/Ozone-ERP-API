@@ -108,7 +108,7 @@ class TestAuthorization:
 
         assert response.status_code == status.HTTP_200_OK
         assert get_authorization_token_from_response(response) is not None
-        assert get_authorization_cookie_from_response(response)._rest["SameSite"] == "Strict"
+        assert get_authorization_cookie_from_response(response)._rest["SameSite"] == "Strict"  # type: ignore[attr-defined]
         assert database.User.get_by_username(saved_user_data.username).get_json() == decoded_data.get(database.User.__name__)
 
     def test_expired_token(self, saved_user_data: rest.User) -> None:
