@@ -16,9 +16,10 @@ nest_asyncio.apply()
 super_admin_app = FastAPI(openapi_url=f"{constants.BASE_URL}/openapi.json")
 super_admin_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=common_router.get_allowed_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True
 )
 
 super_admin_app.include_router(super_admin_router)

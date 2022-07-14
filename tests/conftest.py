@@ -1,4 +1,5 @@
-from typing import cast, Dict
+from http.cookiejar import Cookie
+from typing import Dict
 
 import pytest
 from requests import Response
@@ -9,15 +10,31 @@ from identity_access_management.models import database
 from identity_access_management.models.constants import SUPER_ADMIN_ROLE
 from tests.identity_access_management import iam_test_client
 
-super_admin_password: str = "hello_world"
+
+def get_authorization_cookie_from_response(response: Response) -> Cookie:
+    return next(filter(lambda cookie: cookie.name == 'authorization_token', response.cookies))
+
+
+def get_authorization_token_from_response(response: Response) -> str:
+    return get_authorization_cookie_from_response(response).value
+
+
+def get_authorization_token_header(username: str, password: str) -> Dict[str, str]:
+    response: Response = iam_test_client.post(
+        f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.AUTHENTICATE_URL}",
+        data={"username": username,
+              "password": password})
+    return {"Cookie": f"authorization_token={get_authorization_token_from_response(response)}"}
 
 
 @pytest.fixture
-def super_admin_user() -> database.User:
+def super_user_request_header() -> Dict[str, str]:
+    super_admin_user: database.User
+    super_admin_password: str = "hello_world"
     try:
-        return database.User.get_by_username("john_super_user")
+        super_admin_user = database.User.get_by_username("john_super_user")
     except UniqueDocumentNotFoundException:
-        return database.User(
+        super_admin_user = database.User(
             username="kavindu",
             first_name="Kavindu",
             last_name="Athaudha",
@@ -27,16 +44,4 @@ def super_admin_user() -> database.User:
             role=database.Role.get_by_role(SUPER_ADMIN_ROLE)
         ).save_new_password(super_admin_password)
 
-
-@pytest.fixture
-def super_user_authorization_token(super_admin_user: database.User) -> str:
-    response: Response = iam_test_client.post(
-        f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.AUTHENTICATE_URL}",
-        data={"username": super_admin_user.username,
-              "password": super_admin_password})
-    return cast(str, response.json()["access_token"])
-
-
-@pytest.fixture
-def super_user_request_header(super_user_authorization_token: str) -> Dict[str, str]:
-    return {"Authorization": f"Bearer {super_user_authorization_token}"}
+    return get_authorization_token_header(super_admin_user.username, super_admin_password)

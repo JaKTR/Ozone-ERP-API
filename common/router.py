@@ -1,9 +1,11 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from fastapi.openapi.docs import get_swagger_ui_html
 from starlette.requests import Request
 from starlette.responses import JSONResponse, HTMLResponse
 
+from common.azure import Secrets
+from common.constants import ALLOWED_ORIGINS_SECRET_NAME
 from common.exceptions import ClientException
 
 
@@ -22,3 +24,6 @@ async def client_exception_handler(request: Request, exception: ClientException)
         content=response_content
     )
 
+
+def get_allowed_origins() -> List[Any]:
+    return Secrets.get_secret(ALLOWED_ORIGINS_SECRET_NAME).split(",")

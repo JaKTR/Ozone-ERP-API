@@ -1,7 +1,8 @@
 from typing import Dict, Any, cast, List, Optional
 
-from fastapi import Depends, APIRouter, Form
+from fastapi import Depends, APIRouter, Form, Cookie
 from fastapi.security import OAuth2PasswordBearer
+from starlette.responses import Response
 
 from identity_access_management import constants
 from identity_access_management.exceptions import UnauthorizedRequestException
@@ -13,8 +14,8 @@ iam_app_router: APIRouter = APIRouter(prefix=constants.BASE_URL)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{constants.BASE_URL}{constants.AUTHENTICATE_URL}")
 
 
-async def get_logged_in_user_data(token: str = Depends(oauth2_scheme)) -> User:
-    return User(**database.User.get_user_from_authorization_token(token).get_json())
+async def get_logged_in_user_data(authorization_token: str = Cookie(None)) -> User:
+    return User(**database.User.get_user_from_authorization_token(authorization_token).get_json())
 
 
 def authorize(user: User, authorized_roles: List[str] = None) -> None:
@@ -23,13 +24,14 @@ def authorize(user: User, authorized_roles: List[str] = None) -> None:
 
 
 @iam_app_router.post(f"{constants.AUTHENTICATE_URL}")
-async def authorization(username: str = Form(), password: str = Form()) -> Dict[str, str]:
+async def authorization(response: Response, username: str = Form(), password: str = Form()) -> Dict[str, str]:
     """
     Authorization the user; returns the JWT Authorization Token with the user's data embedded in the data
     """
     authorization_token: str = Authorization(username=username, password=password).get_authorization_token()
     authorization_token_data: Dict[str, Any] = cast(Dict[str, Any], database.User.get_data_from_authorization_token(authorization_token))
-    return {"access_token": authorization_token, "token_type": "bearer", "expiry": authorization_token_data["exp"]}
+    response.set_cookie(key="authorization_token", value=authorization_token, httponly=True, samesite="Strict")
+    return {"expiry": authorization_token_data["exp"]}
 
 
 @iam_app_router.patch(f"{constants.AUTHENTICATE_URL}")

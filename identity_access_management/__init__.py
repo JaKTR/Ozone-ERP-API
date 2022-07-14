@@ -15,9 +15,10 @@ nest_asyncio.apply()
 iam_app = FastAPI(openapi_url=f"{constants.BASE_URL}/openapi.json")
 iam_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=common_router.get_allowed_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True
 )
 
 iam_app.include_router(iam_app_router)

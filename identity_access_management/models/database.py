@@ -89,6 +89,9 @@ class User(DatabaseDocument):
 
     @staticmethod
     def get_data_from_authorization_token(authorization_token: str) -> Any:
+        if authorization_token is None:
+            raise UnauthorizedRequestException("Authorization token is not present", {"cookie": authorization_token})
+
         try:
             return jwt.decode(authorization_token, Secrets.get_application_public_key(),  # type: ignore[arg-type]
                               algorithms=[PBKDF2_ALGORITHM])
