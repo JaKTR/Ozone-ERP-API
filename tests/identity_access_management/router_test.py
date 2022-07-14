@@ -101,14 +101,14 @@ class TestAuthorization:
             data={"username": saved_user_data.username,
                   "password": new_user_password})
 
+        assert get_authorization_token_from_response(response) is not None
         decoded_data: Dict[str, Any] = jwt.decode(get_authorization_token_from_response(response),
                                                   Secrets.get_application_public_key(),  # type: ignore[arg-type]
                                                   algorithms=
                                                   [identity_access_management.models.constants.PBKDF2_ALGORITHM])
 
         assert response.status_code == status.HTTP_200_OK
-        assert get_authorization_token_from_response(response) is not None
-        assert get_authorization_cookie_from_response(response)._rest["SameSite"] == "Strict"  # type: ignore[attr-defined]
+        assert get_authorization_cookie_from_response(response)._rest["SameSite"] == "None"  # type: ignore[attr-defined]
         assert database.User.get_by_username(saved_user_data.username).get_json() == decoded_data.get(database.User.__name__)
 
     def test_expired_token(self, saved_user_data: rest.User) -> None:

@@ -30,7 +30,7 @@ async def authorization(response: Response, username: str = Form(), password: st
     """
     authorization_token: str = Authorization(username=username, password=password).get_authorization_token()
     authorization_token_data: Dict[str, Any] = cast(Dict[str, Any], database.User.get_data_from_authorization_token(authorization_token))
-    response.set_cookie(key="authorization_token", value=authorization_token, httponly=True, samesite="Strict")
+    response.set_cookie(key="authorization_token", value=authorization_token, httponly=True, samesite="None", secure=True)
     return {"expiry": authorization_token_data["exp"]}
 
 
