@@ -64,6 +64,19 @@ class TestUser:
         assert response.status_code == status.HTTP_200_OK
         assert database.User.get_by_username(saved_user_data.username).get_json() == response.json()
 
+    def test_get_another_user(self, saved_user_data: rest.User, super_user_request_header: Dict[str, str]) -> None:
+        response: Response = iam_test_client.get(
+            f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.USER_URL}",
+            params={"username": saved_user_data.username}, headers=super_user_request_header)
+        assert response.status_code == status.HTTP_200_OK
+        assert database.User.get_by_username(saved_user_data.username).get_json() == response.json()
+
+    def test_get_another_user_unauthorized(self, saved_user_data: rest.User, request_header: Dict[str, str]) -> None:
+        response: Response = iam_test_client.get(
+            f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.USER_URL}",
+            params={"username": saved_user_data.username + "a"}, headers=request_header)
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
     def test_update_user(self, saved_user_data: rest.User, request_header: Dict[str, str]) -> None:
         saved_user_data.last_name = saved_user_data.last_name + "a"
         response: Response = iam_test_client.post(

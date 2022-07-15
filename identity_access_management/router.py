@@ -65,11 +65,15 @@ async def create_new_user(new_user: User, logged_in_user: User = Depends(get_log
 
 
 @iam_app_router.get(f"{constants.USER_URL}")
-async def get_user_data(logged_in_user: User = Depends(get_logged_in_user_data)) -> User:
+async def get_user_data(username: Optional[str] = None, logged_in_user: User = Depends(get_logged_in_user_data)) -> User:
     """
     Get the current user's data
     """
-    return User.get_by_username(logged_in_user.username)
+    if username is None:
+        return User.get_by_username(logged_in_user.username)
+    else:
+        authorize(logged_in_user)
+        return User.get_by_username(username)
 
 
 @iam_app_router.get(f"{constants.ROLE_URL}")
