@@ -63,6 +63,7 @@ class User(DatabaseDocument):
     def save(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> "User":
         User.get_by_username.cache_clear()
         User.get_by_username.cache_clear()
+        User.get_all.cache_clear()
         return cast(User, super().save(*args, **kwargs))
 
     def save_new_password(self, password: str) -> "User":
