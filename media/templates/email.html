@@ -1,0 +1,90 @@
+<html>
+<title>${header}</title>
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <style>
+            body{
+                background: radial-gradient(circle, #46B8B6 0%, #4C71B7 100%);
+            }
+
+            .main {
+                margin: 0;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                -ms-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+
+                width: 750px;
+                background-color: #FFFFFF;
+                padding: 50px;
+                border-radius: 50px;
+                box-shadow: 0px 0px 50px #64BD50;
+            }
+
+
+            .center{
+                margin:auto;
+            }
+
+
+            .maintext{
+                font-size: 16pt;
+            }
+
+            .button{
+                background-color: #64BD50;
+            }
+
+            .button:hover{
+                background-color:#46B8B6;
+            }
+
+            .button:focus{
+                background-color:#4C71B7;
+            }
+
+            .footer{
+                padding-top: 50px;
+                font-size: 8pt;
+            }
+
+            hr{
+                width: 75%;
+                border-top: #F0F0F0;
+            }
+
+
+    </style>
+</head>
+
+<body>
+<div class="main" id="email">
+    <div class="center" id="logo">
+        <object data="https://ozoneerpdevelopment.blob.core.windows.net/public/Logo-Animated.svg" type="image/svg+xml" width="125px"></object>
+    </div>
+
+    <div id="heading">
+        <h2 style="text-align:center">
+            ${header}
+        </h2>
+        <hr>
+    </div>
+    </br>
+
+    <div class="center">
+        <p class="maintext">
+            ${body}
+        </p>
+    </div>
+
+    <div class="center footer">
+        <hr>
+        </br>
+        © Ozone ERP
+    </div>
+</div>
+</body>
+</html>
