@@ -8,9 +8,11 @@ from starlette import status
 
 import identity_access_management
 from common.azure import Secrets
+from common.exceptions import ClientException
 from identity_access_management.models import rest, database
 from identity_access_management.models.constants import PBKDF2_ALGORITHM
-from tests.conftest import get_authorization_token_header, get_authorization_token_from_response, get_authorization_cookie_from_response
+from tests.conftest import get_authorization_token_header, get_authorization_token_from_response, \
+    get_authorization_cookie_from_response
 from tests.identity_access_management import iam_test_client
 
 new_user_password: str = "SomeRandomPassword"
@@ -196,3 +198,41 @@ class TestRole:
             f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.ROLE_URL}",
             params={"role": new_role_data.role}, headers=super_user_request_header)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+class TestAppliance:
+
+    @pytest.fixture
+    def new_appliance_data(self, super_user_request_header: Dict[str, str]) -> rest.Appliance:
+        return self.test_save_appliance(super_user_request_header)
+
+    def test_save_appliance(self, super_user_request_header: Dict[str, str]) -> rest.Appliance:
+        new_appliance_data: rest.Appliance = rest.Appliance(
+            callsign=123,
+            seats=["Seat 1", "Seat 2"],
+            type="Type 1",
+            is_rostered=False,
+            is_checked=True,
+            is_self_rostered=False
+        )
+
+        response: Response = iam_test_client.put(
+            f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.APPLIANCE_URL}",
+            json=new_appliance_data.get_dict(), headers=super_user_request_header)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == new_appliance_data.get_dict()
+        return new_appliance_data
+
+    def test_get_appliance(self, super_user_request_header: Dict[str, str], new_appliance_data: rest.Appliance) -> None:
+        response: Response = iam_test_client.get(
+            f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.APPLIANCE_URL}",
+            params={"callsign": new_appliance_data.callsign}, headers=super_user_request_header)
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == new_appliance_data.get_dict()
+
+    def test_delete_appliance(self, super_user_request_header: Dict[str, str], new_appliance_data: rest.Appliance) -> None:
+        response: Response = iam_test_client.delete(
+            f"{identity_access_management.constants.BASE_URL}{identity_access_management.constants.APPLIANCE_URL}",
+            params={"callsign": new_appliance_data.callsign}, headers=super_user_request_header)
+        assert response.status_code == status.HTTP_200_OK
+        with pytest.raises(ClientException):
+            rest.Appliance.get_by_callsign(new_appliance_data.callsign)

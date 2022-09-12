@@ -8,7 +8,7 @@ from identity_access_management import constants
 from identity_access_management.exceptions import UnauthorizedRequestException
 from identity_access_management.models import database
 from identity_access_management.models.constants import SUPER_ADMIN_ROLE
-from identity_access_management.models.rest import Authorization, User, Role
+from identity_access_management.models.rest import Authorization, User, Role, Appliance
 
 iam_app_router: APIRouter = APIRouter(prefix=constants.BASE_URL)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{constants.BASE_URL}{constants.AUTHENTICATE_URL}")
@@ -95,3 +95,27 @@ async def get_all_user_data(logged_in_user: User = Depends(get_logged_in_user_da
     if logged_in_user.role == SUPER_ADMIN_ROLE:
         return User.get_all()
     return None
+
+@iam_app_router.put(f"{constants.APPLIANCE_URL}")
+async def create_update_appliance(appliance: Appliance, logged_in_user: User = Depends(get_logged_in_user_data)) -> Appliance:
+    """
+    Create or updates an appliance
+    """
+    authorize(logged_in_user)
+    return appliance.save()
+
+@iam_app_router.get(f"{constants.APPLIANCE_URL}")
+async def get_appliance_data(callsign: int, logged_in_user: User = Depends(get_logged_in_user_data)) -> Appliance:
+    """
+    Get the appliance data
+    """
+    authorize(logged_in_user)
+    return Appliance.get_by_callsign(callsign)
+
+@iam_app_router.delete(f"{constants.APPLIANCE_URL}")
+async def delete_appliance_data(callsign: int, logged_in_user: User = Depends(get_logged_in_user_data)) -> None:
+    """
+    Delete the appliance data
+    """
+    authorize(logged_in_user)
+    Appliance.delete_by_callsign(callsign)

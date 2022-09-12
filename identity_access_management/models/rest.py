@@ -73,3 +73,22 @@ class Role(ResponseModel):
     @staticmethod
     def get_by_role(role: str) -> "Role":
         return Role(**database.Role.get_by_role(role).get_json())
+
+class Appliance(ResponseModel):
+    callsign: int
+    seats: List[str]
+    type: str
+    is_rostered: bool
+    is_checked: bool
+    is_self_rostered: bool
+
+    def save(self) -> "Appliance":
+        return Appliance(**database.Appliance(**self.get_dict()).save().get_json())
+
+    @staticmethod
+    def get_by_callsign(callsign: int) -> "Appliance":
+        return Appliance(**database.Appliance.get_by_callsign(callsign).get_json())
+
+    @staticmethod
+    def delete_by_callsign(callsign: int) -> None:
+        database.Appliance.delete_by_callsign(callsign)

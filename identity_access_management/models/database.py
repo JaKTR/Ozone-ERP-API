@@ -9,7 +9,8 @@ import jwt
 from cryptography.exceptions import InvalidKey
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from mongoengine import BinaryField, StringField, ReferenceField, DoesNotExist, EmailField, IntField
+from mongoengine import BinaryField, StringField, ReferenceField, DoesNotExist, EmailField, IntField, BooleanField, \
+    ListField
 
 from common import functions
 from common.azure import Secrets
@@ -64,7 +65,8 @@ class User(DatabaseDocument):
         User.get_by_username.cache_clear()
         User.get_by_username.cache_clear()
         User.get_all.cache_clear()
-        return cast(User, super().save(*args, **kwargs))
+        user: User = cast(User, super().save(*args, **kwargs))
+        return user
 
     def save_new_password(self, password: str) -> "User":
         if self.is_saved and self.is_password_correct(password):
@@ -142,3 +144,30 @@ class User(DatabaseDocument):
         for user in User.objects():
             all_user_list.append(user)
         return all_user_list
+
+class Appliance(DatabaseDocument):
+    callsign: int = IntField(primary_key=True, required=True)
+
+    # TODO: Change to Qualification and Rank object
+    seats: List[str] = ListField(StringField(), required=True)
+    type: str = StringField(required=True)
+    is_rostered: bool = BooleanField(required=True)
+    is_checked: bool = BooleanField(required=True)
+    is_self_rostered: bool = BooleanField(required=True)
+
+    def save(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> "User":
+        Appliance.get_by_callsign.cache_clear()
+        return cast(User, super().save(*args, **kwargs))
+
+    @staticmethod
+    @cache
+    def get_by_callsign(callsign: int) -> "Appliance":
+        try:
+            return cast(Appliance, Appliance.objects.get(callsign=callsign))
+        except DoesNotExist:
+            raise UniqueDocumentNotFoundException(f"Appliance not found", callsign)
+
+    @staticmethod
+    def delete_by_callsign(callsign: int) -> None:
+        Appliance.get_by_callsign(callsign).delete()
+        Appliance.get_by_callsign.cache_clear()
